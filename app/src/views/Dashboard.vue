@@ -43,7 +43,7 @@ export default {
     apiDevice.getSensors((list) => {
       this.sensors = list;
     });
-/*
+
     console.log("Starting connection to WebSocket Server");
     this.connection = new WebSocket("ws://" + window.location.host + "/ws");
 
@@ -51,7 +51,7 @@ export default {
       // TODO read sensor json data
       console.log(event.data);
     };
-*/
+
     /*
     this.connection.onopen = function(event) {
       //console.log(event)

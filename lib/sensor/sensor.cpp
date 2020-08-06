@@ -2,6 +2,8 @@
 #include <ESPiLight.h>
 #define ARDUINOJSON_USE_LONG_LONG 1
 #include <ArduinoJson.h>
+#include <ESPAsyncWebServer.h>
+#include "app.h"
 
 #define RECEIVER_PIN 4 // any intterupt able pin
 
@@ -49,6 +51,8 @@ void rfCallback(const String &protocol, const String &message, int status,
           // invalid range
           return;
         }
+
+				sendDataWs(doc);
 
         // update existing sensor
         for (uint8_t s = 0; s < SENSOR_COUNT; s++)
