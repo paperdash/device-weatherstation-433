@@ -41,10 +41,10 @@ void rfCallback(const String &protocol, const String &message, int status,
         doc.clear();
         deserializeJson(doc, message, DeserializationOption::Filter(filter));
         float temperature = doc["temperature"];
-        int humidity = doc["humidity"];
+        int8_t humidity = doc["humidity"];
 
         // validate sensor data
-        if (temperature <= -30 || temperature >= 60)
+        if (temperature <= -30 || temperature >= 60 || humidity < 0 || humidity > 100)
         {
           // invalid range
           return;
