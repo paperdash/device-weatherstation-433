@@ -7,7 +7,7 @@
     </template>
 
     <template v-else>
-      <div class="grey lighten-4">
+      <div class="fill-height grey lighten-4">
         <v-container>
           <v-card>
             <v-app-bar
@@ -39,13 +39,12 @@
               </template>
             </v-app-bar>
 
-            <v-main fluid fill-height class="align-start">
+            <v-main fluid_ _fill-height class="align-start">
               <transition-page>
                 <router-view></router-view>
               </transition-page>
             </v-main>
           </v-card>
-
         </v-container>
 
         <v-navigation-drawer
