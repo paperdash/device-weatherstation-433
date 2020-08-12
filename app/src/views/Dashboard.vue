@@ -1,7 +1,60 @@
 <template>
-  <v-container _fluid _grid-list-md _pa-2>
-    <div wrap_>
+  <v-container>
+    <div>
       <v-card>
+        <v-toolbar
+          color="orange darken-2"
+          dark
+          flat
+        >
+          <v-app-bar-nav-icon></v-app-bar-nav-icon>
+
+          <v-toolbar-title>Retrofit Weather Station</v-toolbar-title>
+
+          <v-spacer></v-spacer>
+
+          <v-btn icon>
+            <v-btn to="/setup/wifi" icon _outlined>
+              <v-icon _color="red">$signalWifiOff</v-icon>
+            </v-btn>
+          </v-btn>
+
+          <v-chip
+            class="ma-2"
+            color="white"
+            outlined
+            pill
+          >
+            9:29 AM
+          </v-chip>
+
+          <!--
+          <v-btn icon>
+            <v-icon>$more_vert</v-icon>
+          </v-btn>
+          -->
+
+          <template v-slot:extension>
+            <v-tabs
+              v-model="tabs"
+              background-color="orange darken-2"
+              centered
+              slider-color="black"
+              _icons-and-text
+            >
+              <v-tab>
+                Favorite
+                <!--<v-icon>$ratingEmpty</v-icon>-->
+              </v-tab>
+              <v-tab>
+                Discovered
+                <!--<svg fill="white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" height="24"><path d="M500 990c-197.8 0-384.8-65.2-384.8-145.7 0-52.6 79.9-98.7 190.4-124.3l26.1 45.7c-94.2 16.4-163.5 45.4-163.5 78.6 0 51.2 164.4 92.7 331.7 92.7 167.3 0 331.7-41.5 331.7-92.7 0-33.2-69.3-62.2-163.5-78.6l26.1-45.7c110.6 25.6 190.4 71.7 190.4 124.3C884.7 924.8 697.8 990 500 990zm255.9-445.3c-9 9.8-221.5 257-221.5 257-8.9 10.8-18.7 18.4-29.2 18.4-10.6 0-18.5-8.4-26.6-18.4 0 0-239.6-261.9-243.7-267.6-4.1-5.7-9.6-12.9-14.1-20.4-31.6-50.6-52.5-108.6-52.5-172.6C168.3 158.2 316.8 10 500 10s331.7 148.2 331.7 331.1c0 66-19.6 127.4-53.1 179-9.1 12-17.8 19.7-22.7 24.6zM500 63c-153.9 0-278.6 124.5-278.6 278.1 0 50.7 15.5 95.1 41 132.1 8.4 13.3 34.6 44.2 34.6 44.2l203 235.4L698.8 525s10.1-11.9 22.1-29.4c30.8-44.5 57.7-93.2 57.7-154.5C778.6 187.5 653.9 63 500 63zm0 397.3c-65.9 0-119.4-53.4-119.4-119.2 0-65.8 53.5-119.2 119.4-119.2s119.4 53.4 119.4 119.2c0 65.8-53.5 119.2-119.4 119.2zm0-185.4c-36.6 0-66.3 29.7-66.3 66.2 0 36.6 29.7 66.2 66.3 66.2 36.6 0 66.3-29.7 66.3-66.2 0-36.6-29.7-66.2-66.3-66.2z"></path></svg>-->
+              </v-tab>
+            </v-tabs>
+          </template>
+        </v-toolbar>
+
+        <!--
         <v-tabs
           v-model="tabs"
           background-color="orange darken-2"
@@ -18,13 +71,14 @@
             <svg fill="white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" height="24"><path d="M500 990c-197.8 0-384.8-65.2-384.8-145.7 0-52.6 79.9-98.7 190.4-124.3l26.1 45.7c-94.2 16.4-163.5 45.4-163.5 78.6 0 51.2 164.4 92.7 331.7 92.7 167.3 0 331.7-41.5 331.7-92.7 0-33.2-69.3-62.2-163.5-78.6l26.1-45.7c110.6 25.6 190.4 71.7 190.4 124.3C884.7 924.8 697.8 990 500 990zm255.9-445.3c-9 9.8-221.5 257-221.5 257-8.9 10.8-18.7 18.4-29.2 18.4-10.6 0-18.5-8.4-26.6-18.4 0 0-239.6-261.9-243.7-267.6-4.1-5.7-9.6-12.9-14.1-20.4-31.6-50.6-52.5-108.6-52.5-172.6C168.3 158.2 316.8 10 500 10s331.7 148.2 331.7 331.1c0 66-19.6 127.4-53.1 179-9.1 12-17.8 19.7-22.7 24.6zM500 63c-153.9 0-278.6 124.5-278.6 278.1 0 50.7 15.5 95.1 41 132.1 8.4 13.3 34.6 44.2 34.6 44.2l203 235.4L698.8 525s10.1-11.9 22.1-29.4c30.8-44.5 57.7-93.2 57.7-154.5C778.6 187.5 653.9 63 500 63zm0 397.3c-65.9 0-119.4-53.4-119.4-119.2 0-65.8 53.5-119.2 119.4-119.2s119.4 53.4 119.4 119.2c0 65.8-53.5 119.2-119.4 119.2zm0-185.4c-36.6 0-66.3 29.7-66.3 66.2 0 36.6 29.7 66.2 66.3 66.2 36.6 0 66.3-29.7 66.3-66.2 0-36.6-29.7-66.2-66.3-66.2z"></path></svg>
           </v-tab>
         </v-tabs>
+        -->
 
         <v-tabs-items v-model="tabs">
           <v-tab-item>
             <v-layout wrap class="mt-5">
               <v-flex
-                v-for="sensor in favoriteList"
-                :key="sensor.id" xs12 sm6 md4 lg3
+                v-for="(sensor, i) in favoriteList"
+                :key="i" xs12 sm6 md4 lg3
               >
                 <v-card v-if="1" outlined class="text-center mt-16 mb-6 mx-6">
                   <v-card-text>
@@ -63,7 +117,7 @@
                 >
                   <v-divider
                     v-if="i > 0"
-                    :key="sensor.id"
+                    :key="i"
                     style="margin-left: 95px"
                   ></v-divider>
 
@@ -77,7 +131,7 @@
                   -->
 
                   <v-list-item
-                    :key="sensor.id"
+                    :key="i"
                     :class="{'outdated': isOutdated(sensor.last_update)}"
                     @click="addFavorite"
                   >

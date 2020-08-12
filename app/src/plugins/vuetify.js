@@ -8,14 +8,14 @@ const MY_ICONS = {
     // system icons
     //complete: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/check/baseline.svg')},
     //cancel: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/cancel/baseline.svg')},
-    close: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/close/baseline.svg')},
+    //close: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/close/baseline.svg')},
     //delete: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/delete/baseline.svg')},
     //clear: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/clear/baseline.svg')},
     //success: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/check_circle/baseline.svg')},
     //info: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/info/baseline.svg')},
     //warning: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/priority_high/baseline.svg')},
     //error: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/warning/baseline.svg')},
-    prev: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/chevron_left/baseline.svg')},
+    //prev: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/chevron_left/baseline.svg')},
     next: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/chevron_right/baseline.svg')},
     //checkboxOn: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/check_box/baseline.svg')},
     //checkboxOff: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/check_box_outline_blank/baseline.svg')},
@@ -23,13 +23,13 @@ const MY_ICONS = {
     //delimiter: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/fiber_manual_record/baseline.svg')}, // for carousel
     //sort: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/arrow_upward/baseline.svg')},
     //expand: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/keyboard_arrow_down/baseline.svg')},
-    //menu: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/menu/baseline.svg')},
+    menu: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/menu/baseline.svg')},
     //subgroup: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/arrow_drop_down/baseline.svg')},
-    dropdown: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/arrow_drop_down/baseline.svg')},
-    radioOn: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/radio_button_checked/baseline.svg')},
-    radioOff: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/radio_button_unchecked/baseline.svg')},
+    //dropdown: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/arrow_drop_down/baseline.svg')},
+    //radioOn: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/radio_button_checked/baseline.svg')},
+    //radioOff: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/radio_button_unchecked/baseline.svg')},
     //edit: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/edit/baseline.svg')},
-    //ratingEmpty: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/star_border/baseline.svg')},
+    ratingEmpty: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/star_border/baseline.svg')},
     //ratingFull: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/star/baseline.svg')},
     //ratingHalf: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/star_half/baseline.svg')},
     //loading: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/cached/baseline.svg')},
@@ -42,13 +42,13 @@ const MY_ICONS = {
 
     // app icons
     //save: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/save/baseline.svg')},
-    //more_vert: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/more_vert/baseline.svg')},
+    more_vert: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/more_vert/baseline.svg')},
     //reorder: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/reorder/baseline.svg')},
     //preview: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/remove_red_eye/baseline.svg')},
 	//search: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/search/baseline.svg')},
-	memory: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/memory/baseline.svg')},
+	//memory: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/memory/baseline.svg')},
 	lock: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/lock/baseline.svg')},
-	settings: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/settings/baseline.svg')},
+	//settings: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/settings/baseline.svg')},
 
 	// wifi
 	signalWifiOff: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/signal_wifi_off/baseline.svg')},
@@ -63,13 +63,13 @@ const MY_ICONS = {
 	signalWifi4Lock: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/signal_wifi_4_bar_lock/baseline.svg')},
 
 	// setup
-	wb_sunny: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/wb_sunny/baseline.svg')},
-	open_in_new: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/open_in_new/baseline.svg')},
-	face: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/face/baseline.svg')},
-	autorenew: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/autorenew/baseline.svg')},
-	check: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/check/baseline.svg')},
-	visibility: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/visibility/baseline.svg')},
-	visibility_off: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/visibility_off/baseline.svg')}
+	//wb_sunny: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/wb_sunny/baseline.svg')},
+	//open_in_new: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/open_in_new/baseline.svg')},
+	//face: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/face/baseline.svg')},
+	//autorenew: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/autorenew/baseline.svg')},
+	//check: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/check/baseline.svg')},
+	//visibility: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/visibility/baseline.svg')},
+	//visibility_off: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/visibility_off/baseline.svg')}
 }
 
 
