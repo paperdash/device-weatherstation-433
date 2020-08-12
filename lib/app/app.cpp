@@ -130,6 +130,8 @@ void setupSensorsGet()
 				json += ",\"temperature\":" + String(list[i].temperature);
 				json += ",\"humidity\":" + String(list[i].humidity);
 				json += ",\"last_update\":" + String(list[i].last_update);
+				json += ",\"protocol\":\"" + String(list[i].protocol) + "\"";
+				json += ",\"label\":\"" + String(list[i].label) + "\"";
 				json += "}";
 			}
 		}
