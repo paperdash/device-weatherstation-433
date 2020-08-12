@@ -67,7 +67,7 @@ const MY_ICONS = {
 	//open_in_new: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/open_in_new/baseline.svg')},
 	//face: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/face/baseline.svg')},
 	//autorenew: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/autorenew/baseline.svg')},
-	//check: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/check/baseline.svg')},
+	check: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/check/baseline.svg')},
 	//visibility: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/visibility/baseline.svg')},
 	//visibility_off: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/visibility_off/baseline.svg')}
 }

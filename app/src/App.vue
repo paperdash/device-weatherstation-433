@@ -7,29 +7,95 @@
     </template>
 
     <template v-else>
-      <v-system-bar app dark color="primary" _window _lights-out>
-        <span>paperdash.io</span>
-        <v-spacer></v-spacer>
-        <span>weather station</span>
-        <v-spacer></v-spacer>
-        <template v-if="stats.wifi.connected">
-          <v-icon>{{ stats.wifi.rssi | wifiIcon(0) }}</v-icon>
-          <span>{{ stats.device.time | moment("LT") }}</span>
-        </template>
-        <template v-else>
-          <v-btn to="/setup/wifi" icon>
-            <v-icon color="red">$signalWifiOff</v-icon>
-          </v-btn>
-        </template>
-      </v-system-bar>
+      <div class="grey lighten-4">
+        <v-container>
+          <v-card>
+            <v-app-bar
+              color="orange darken-2"
+              dark
+              flat
+            >
+              <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
 
-      <v-main class="grey lighten-4">
-        <v-container fluid fill-height class="align-start">
-          <transition-page>
-            <router-view></router-view>
-          </transition-page>
+              <v-toolbar-title>Retrofit Weather Station</v-toolbar-title>
+
+              <v-spacer></v-spacer>
+
+              <template v-if="stats.wifi.connected">
+                <v-icon class="mr-2">{{ stats.wifi.rssi | wifiIcon(0) }}</v-icon>
+                <v-chip
+                  class="ma-2"
+                  color="white"
+                  outlined
+                  pill
+                >
+                  {{ stats.device.time | moment("LT") }}
+                </v-chip>
+              </template>
+              <template v-else>
+                <v-btn to="/setup/wifi" icon>
+                  <v-icon color="red">$signalWifiOff</v-icon>
+                </v-btn>
+              </template>
+            </v-app-bar>
+
+            <v-main fluid fill-height class="align-start">
+              <transition-page>
+                <router-view></router-view>
+              </transition-page>
+            </v-main>
+          </v-card>
+
         </v-container>
-      </v-main>
+
+        <v-navigation-drawer
+            v-model="drawer"
+            absolute
+            temporary
+          >
+            <v-list
+              nav
+              dense
+            >
+              <v-list-item to="/">
+                <v-list-item-icon>
+                  <v-icon>$signalWifiOff</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    Dashboard
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item to="/setup/wifi">
+                <v-list-item-icon>
+                  <v-icon>$signalWifiOff</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    Wifi setup
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item link>
+                <v-list-item-icon>
+                  <v-icon>$lock</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    System update
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+
+            <template v-slot:append>
+              <div class="pa-2 text-center text--disabled">
+                v1.0.3
+              </div>
+            </template>
+        </v-navigation-drawer>
+      </div>
     </template>
   </v-app>
 </template>
@@ -46,6 +112,7 @@ export default {
   data: () => ({
     isLoading: true,
     settings: null,
+    drawer: false
   }),
   created() {
     apiDevice.getSettings((settings) => {
