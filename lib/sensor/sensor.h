@@ -11,13 +11,15 @@ void loopSensor();
 
 typedef struct
 {
+	// sensor data
     uint16_t id;
     float temperature;
     uint8_t humidity;
     time_t last_update;
+    char protocol[10];
 
-    String protocol;
-    String alias; // from user
+	// user data
+    char label[20];
 } structSensorData;
 
 structSensorData *getSensorList();

@@ -7,7 +7,7 @@
     </template>
 
     <template v-else>
-      <div class="grey lighten-4">
+      <div class="fill-height grey lighten-4">
         <v-container>
           <v-card>
             <v-app-bar
@@ -39,13 +39,12 @@
               </template>
             </v-app-bar>
 
-            <v-main fluid fill-height class="align-start">
+            <v-main fluid_ _fill-height class="align-start">
               <transition-page>
                 <router-view></router-view>
               </transition-page>
             </v-main>
           </v-card>
-
         </v-container>
 
         <v-navigation-drawer
@@ -53,37 +52,60 @@
             absolute
             temporary
           >
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title class="title">
+                  Application
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  subtext
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-divider class="mx-2"></v-divider>
+
             <v-list
               nav
               dense
             >
               <v-list-item to="/">
                 <v-list-item-icon>
-                  <v-icon>$signalWifiOff</v-icon>
+                  <v-icon>$dashboard</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title>
-                    Dashboard
+                    Sensor
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item to="/setup/wifi">
                 <v-list-item-icon>
-                  <v-icon>$signalWifiOff</v-icon>
+                  <v-icon>$wifi</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title>
-                    Wifi setup
+                    Wifi
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-list-item link>
+              <v-list-item to="/setup/display">
                 <v-list-item-icon>
-                  <v-icon>$lock</v-icon>
+                  <v-icon>$present_to_all</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title>
-                    System update
+                    Display
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item to="/setup/system">
+                <v-list-item-icon>
+                  <v-icon>$settings</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    System
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>

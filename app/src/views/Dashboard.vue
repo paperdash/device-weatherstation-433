@@ -94,8 +94,7 @@
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     {{ sensor.humidity }}%
-                    | protocol: wt_800
-                    | device id: 163
+                    | {{ sensor.id }}, {{ sensor.protocol }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
 
