@@ -17,6 +17,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 void setupSettingsGet();
 void setupSettingsPost();
 void setupSensorsGet();
+void setupEpdScan();
 void setupWifiScan();
 void setupWifiConnect();
 void setupApiUpdate();
@@ -43,6 +44,7 @@ void setupApp()
 	setupSettingsGet();
 	setupSettingsPost();
 	setupSensorsGet();
+	setupEpdScan();
 	setupWifiScan();
 	setupWifiConnect();
 	setupApiUpdate();
@@ -50,7 +52,7 @@ void setupApp()
 
 	server.onNotFound([](AsyncWebServerRequest *request) {
 		request->send(404);
-	});
+		});
 
 	// TODO response
 	server.on("/stats", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -79,7 +81,7 @@ void setupApp()
 
 		serializeJson(doc, *response);
 		request->send(response);
-	});
+		});
 
 	// CORS
 	DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
@@ -90,7 +92,7 @@ void setupApp()
 
 	events.onConnect([](AsyncEventSourceClient *client) {
 		client->send("hello!", NULL, millis(), 1000);
-	});
+		});
 	server.addHandler(&events);
 
 	server.begin();
@@ -139,7 +141,7 @@ void setupSensorsGet()
 		json += "]";
 		request->send(200, "application/json", json);
 		json = String();
-	});
+		});
 }
 
 void setupSettingsGet()
@@ -157,31 +159,70 @@ void setupSettingsGet()
 
 		serializeJson(root, *response);
 		request->send(response);
-	});
+		});
 }
 
 void setupSettingsPost()
 {
 	server.on(
 		"/api/settings", HTTP_PUT, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-		DynamicJsonDocument doc(2048);
+			DynamicJsonDocument doc(2048);
 
-		DeserializationError error = deserializeJson(doc, data);
-		if (error) {
-			Serial.print(F("deserializeJson() failed with code "));
-			Serial.println(error.c_str());
+			DeserializationError error = deserializeJson(doc, data);
+			if (error) {
+				Serial.print(F("deserializeJson() failed with code "));
+				Serial.println(error.c_str());
 
-			request->send(404, "text/plain", "");
+				request->send(404, "text/plain", "");
+			}
+			else
+			{
+
+				// TODO
+
+				NVS.commit();
+
+				request->send(200, "application/ld+json; charset=utf-8", "{}");
+			} });
+}
+
+void setupEpdScan()
+{
+	server.on("/api/epd/scan", HTTP_GET, [](AsyncWebServerRequest *request) {
+		String json = "[";
+
+		Serial.printf("Browsing for service _%s._%s.local. ... ", "http", "tcp");
+		int n = MDNS.queryService("http", "tcp");
+		if (n == 0) {
+			Serial.println("no services found");
 		}
-		else
-		{
+		else {
+			Serial.print(n);
+			Serial.println(" service(s) found");
 
-			// TODO
+			size_t cnt = 0;
+			for (size_t i = 0; i < n; ++i) {
+				// checking for epd
+				if (MDNS.hasTxt(i, "epd")) {
+					if (cnt)
+					{
+						json += ",";
+					}
 
-			NVS.commit();
+					json += "{";
+					json += "\"hostname\":\"" + MDNS.hostname(i) + "\"";
+					json += ",\"ip\":\"" + MDNS.IP(i).toString() + "\"";
+					json += ",\"port\":" + String(MDNS.port(i));
+					json += "}";
+				}
+			}
+		}
+		Serial.println();
 
-			request->send(200, "application/ld+json; charset=utf-8", "{}");
-		} });
+		json += "]";
+		request->send(200, "application/json", json);
+		json = String();
+		});
 }
 
 /**
@@ -214,7 +255,7 @@ void setupWifiScan()
 		json += "]";
 		request->send(200, "application/json", json);
 		json = String();
-	});
+		});
 }
 
 /**
@@ -224,44 +265,44 @@ void setupWifiConnect()
 {
 	server.on(
 		"/api/wifi/connect", HTTP_POST, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-		DynamicJsonDocument doc(1024);
+			DynamicJsonDocument doc(1024);
 
-		DeserializationError error = deserializeJson(doc, data);
-		if (error) {
-			Serial.print(F("deserializeJson() failed with code "));
-			Serial.println(error.c_str());
+			DeserializationError error = deserializeJson(doc, data);
+			if (error) {
+				Serial.print(F("deserializeJson() failed with code "));
+				Serial.println(error.c_str());
 
-			request->send(404, "application/ld+json; charset=utf-8", "{}");
-		}
-		else
-		{
-			JsonVariant ssid = doc["ssid"];
-			if (!ssid.isNull()) {
-				NVS.setString("wifi.ssid", ssid);
-				Serial.println(ssid.as<char*>());
+				request->send(404, "application/ld+json; charset=utf-8", "{}");
 			}
+			else
+			{
+				JsonVariant ssid = doc["ssid"];
+				if (!ssid.isNull()) {
+					NVS.setString("wifi.ssid", ssid);
+					Serial.println(ssid.as<char*>());
+				}
 
-			JsonVariant password = doc["password"];
-			if (!password.isNull()) {
-				NVS.setString("wifi.password", password);
-				Serial.println(password.as<char*>());
-			}
+				JsonVariant password = doc["password"];
+				if (!password.isNull()) {
+					NVS.setString("wifi.password", password);
+					Serial.println(password.as<char*>());
+				}
 
-/*
-			if (doc.containsKey("ssid")) {
-				NVS.setString("wifi_ssid", doc["ssid"]);
-				Serial.println(doc["ssid"].as<char*>());
-			}
-			if (doc.containsKey("password")) {
-				NVS.setString("wifi_password", doc["password"]);
-				Serial.println(doc["password"].as<char*>());
-			}
-			*/
+				/*
+							if (doc.containsKey("ssid")) {
+								NVS.setString("wifi_ssid", doc["ssid"]);
+								Serial.println(doc["ssid"].as<char*>());
+							}
+							if (doc.containsKey("password")) {
+								NVS.setString("wifi_password", doc["password"]);
+								Serial.println(doc["password"].as<char*>());
+							}
+							*/
 
-			request->send(200, "application/ld+json; charset=utf-8", "{}");
+				request->send(200, "application/ld+json; charset=utf-8", "{}");
 
-			ESP.restart();
-		} });
+				ESP.restart();
+			} });
 }
 
 void setupApiUpdate()
@@ -275,7 +316,7 @@ void setupApiUpdate()
 		}
 
 		request->send(200, "application/ld+json; charset=utf-8", "{}");
-	});
+		});
 }
 
 void setupOTA()
@@ -296,37 +337,37 @@ void setupOTA()
 			response->addHeader("Connection", "close");
 			request->send(response); },
 		[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-			if (!index)
-			{
-				Serial.printf("Update Start: %s\n", filename.c_str());
-				// bool canBegin = Update.begin(contentLength, U_FLASH);
-				// bool canBegin = Update.begin(contentLength, U_SPIFFS);
-				if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000))
+				if (!index)
 				{
-					Update.printError(Serial);
+					Serial.printf("Update Start: %s\n", filename.c_str());
+					// bool canBegin = Update.begin(contentLength, U_FLASH);
+					// bool canBegin = Update.begin(contentLength, U_SPIFFS);
+					if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000))
+					{
+						Update.printError(Serial);
+					}
 				}
-			}
 
-			if (!Update.hasError())
-			{
-				if (Update.write(data, len) != len)
+				if (!Update.hasError())
 				{
-					Update.printError(Serial);
+					if (Update.write(data, len) != len)
+					{
+						Update.printError(Serial);
+					}
 				}
-			}
 
-			if (final)
-			{
-				if (Update.end(true))
+				if (final)
 				{
-					Serial.printf("Update Success: %uB\n", index + len);
+					if (Update.end(true))
+					{
+						Serial.printf("Update Success: %uB\n", index + len);
+					}
+					else
+					{
+						Update.printError(Serial);
+					}
 				}
-				else
-				{
-					Update.printError(Serial);
-				}
-			}
-		});
+			});
 }
 
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)

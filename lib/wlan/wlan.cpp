@@ -58,7 +58,8 @@ void initClientMode(const char *ssid, const char *password)
 				Serial.println("  wifi is not reachable...");
 				initAPMode();
 				return;
-			} else {
+			}
+			else {
 				tryCount = 5;
 				WiFi.disconnect();
 				Serial.println("  wifi reset...");
@@ -72,9 +73,12 @@ void initClientMode(const char *ssid, const char *password)
 	Serial.print("  IP address: ");
 	Serial.println(WiFi.localIP());
 
-    if (!MDNS.begin(deviceName)) {
-        Serial.println("Error setting up MDNS responder!");
-    }
+	if (!MDNS.begin(deviceName)) {
+		Serial.println("Error setting up MDNS responder!");
+	}
+
+	// Add service to MDNS-SD
+	MDNS.addService("http", "tcp", 80);
 
 	Serial.print("  connected in: ");
 	Serial.println(millis() - startMills);
