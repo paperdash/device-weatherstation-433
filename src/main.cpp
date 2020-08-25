@@ -5,6 +5,7 @@
 #include "sensor.h"
 #include "datetime.h"
 #include "app.h"
+#include "display.h"
 
 void setup()
 {
@@ -31,6 +32,7 @@ void setup()
 	}
 
 	setupApp();
+	setupDisplay();
 
 	Serial.println();
 	Serial.println("setup - done");
