@@ -3,7 +3,6 @@
 
 #define ARDUINOJSON_USE_LONG_LONG 1
 #include <ArduinoJson.h>
-#include <ESPmDNS.h>
 
 void setupApp();
 void loopApp();

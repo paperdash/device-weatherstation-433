@@ -4,6 +4,7 @@
 #define ARDUINOJSON_USE_LONG_LONG 1
 #include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
+#include <ESPmDNS.h>
 #include "app.h"
 #include "settings.h"
 #include "sensor.h"
@@ -190,7 +191,6 @@ void setupEpdScan()
 {
 	server.on("/api/epd/scan", HTTP_GET, [](AsyncWebServerRequest *request) {
 		String json = "[";
-
 		Serial.printf("Browsing for service _%s._%s.local. ... ", "http", "tcp");
 		int n = MDNS.queryService("http", "tcp");
 		if (n == 0) {
