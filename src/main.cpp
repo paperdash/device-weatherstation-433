@@ -6,6 +6,7 @@
 #include "datetime.h"
 #include "app.h"
 #include "display.h"
+#include "test3.h"
 
 void setup()
 {
@@ -32,7 +33,7 @@ void setup()
 	}
 
 	setupApp();
-	setupDisplay();
+	setupTest3();
 
 	Serial.println();
 	Serial.println("setup - done");
