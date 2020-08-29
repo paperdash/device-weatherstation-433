@@ -1,6 +1,7 @@
 #include <FS.h>
 #include <SPIFFS.h>
 #include <Update.h>
+#define ARDUINOJSON_DECODE_UNICODE 1
 #define ARDUINOJSON_USE_LONG_LONG 1
 #include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
@@ -18,6 +19,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 void setupSettingsGet();
 void setupSettingsPost();
 void setupSensorsGet();
+void setupSensorUpdatePut();
 void setupEpdScan();
 void setupWifiScan();
 void setupWifiConnect();
@@ -45,6 +47,7 @@ void setupApp()
 	setupSettingsGet();
 	setupSettingsPost();
 	setupSensorsGet();
+	setupSensorUpdatePut();
 	setupEpdScan();
 	setupWifiScan();
 	setupWifiConnect();
@@ -53,7 +56,7 @@ void setupApp()
 
 	server.onNotFound([](AsyncWebServerRequest *request) {
 		request->send(404);
-		});
+	});
 
 	// TODO response
 	server.on("/stats", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -82,7 +85,7 @@ void setupApp()
 
 		serializeJson(doc, *response);
 		request->send(response);
-		});
+	});
 
 	// CORS
 	DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
@@ -93,7 +96,7 @@ void setupApp()
 
 	events.onConnect([](AsyncEventSourceClient *client) {
 		client->send("hello!", NULL, millis(), 1000);
-		});
+	});
 	server.addHandler(&events);
 
 	server.begin();
@@ -116,6 +119,40 @@ void loopApp()
 void setupSensorsGet()
 {
 	server.on("/api/sensors", HTTP_GET, [](AsyncWebServerRequest *request) {
+		AsyncResponseStream *response = request->beginResponseStream("application/json");
+
+		// Allocate a temporary JsonDocument
+		const size_t capacity = JSON_ARRAY_SIZE(20) + 20 * JSON_OBJECT_SIZE(4) + 800;
+		StaticJsonDocument<capacity> root;
+
+		structSensorData *list = getSensorList();
+		for (uint8_t i = 0; i < SENSOR_COUNT; ++i)
+		{
+			if (list[i].id > 0)
+			{
+				root[i]["id"] = list[i].id;
+				root[i]["temperature"] = list[i].temperature;
+				root[i]["humidity"] = list[i].humidity;
+				root[i]["last_update"] = list[i].last_update;
+				root[i]["protocol"] = list[i].protocol;
+				root[i]["label"] = list[i].label;
+			}
+		}
+
+		serializeJson(root, *response);
+		request->send(response);
+
+		/*
+		root["system"]["country"] = NVS.getString("system.country");
+		root["system"]["language"] = NVS.getString("system.language");
+		root["system"]["timezone"] = NVS.getString("system.timezone");
+		root["system"]["utc"] = NVS.getInt("system.utc");
+		root["system"]["dst"] = NVS.getInt("system.dst");
+		root["system"]["wifi"] = NVS.getString("wifi.ssid");
+
+		serializeJson(root, *response);
+		request->send(response);
+
 		String json = "[";
 
 		structSensorData *list = getSensorList();
@@ -130,8 +167,8 @@ void setupSensorsGet()
 
 				json += "{";
 				json += "\"id\":" + String(list[i].id);
-				json += ",\"temperature\":" + String(list[i].temperature);
-				json += ",\"humidity\":" + String(list[i].humidity);
+				json += ",\"temperature\":" + String(list[i].temperature || 0);
+				json += ",\"humidity\":" + String(list[i].humidity || 0);
 				json += ",\"last_update\":" + String(list[i].last_update);
 				json += ",\"protocol\":\"" + String(list[i].protocol) + "\"";
 				json += ",\"label\":\"" + String(list[i].label) + "\"";
@@ -142,7 +179,55 @@ void setupSensorsGet()
 		json += "]";
 		request->send(200, "application/json", json);
 		json = String();
-		});
+		*/
+	});
+}
+
+void setupSensorUpdatePut()
+{
+	server.on(
+		"^\\/api\\/sensor\\/([0-9]+)$", HTTP_PUT, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+			Serial.println(F("update sensor from webserver"));
+
+			uint16_t sensorId = request->pathArg(0).toInt();
+			DynamicJsonDocument doc(2048);
+
+			// TODO deserializeJson(doc, message, DeserializationOption::Filter(filter));
+
+			DeserializationError error = deserializeJson(doc, data);
+			if (error)
+			{
+				Serial.print(F("deserializeJson() failed with code "));
+				Serial.println(error.c_str());
+
+				request->send(404, "text/plain", "");
+			}
+			else
+			{
+				// TODO
+				structSensorData sensor;
+
+				JsonVariant id = doc["id"];
+				if (!id.isNull()) {
+					sensor.id = id.as<uint16_t>();
+				} else {
+					sensor.id = sensorId;
+				}
+
+
+				JsonVariant label = doc["label"];
+				if (!label.isNull()) {
+					Serial.println(label.as<char*>());
+
+					strlcpy(sensor.label,
+							label.as<char*>(),
+							sizeof(sensor.label));
+				}
+
+				updateSensor(sensorId, sensor);
+
+				request->send(200, "application/ld+json; charset=utf-8", "{}");
+			} });
 }
 
 void setupSettingsGet()
@@ -160,7 +245,7 @@ void setupSettingsGet()
 
 		serializeJson(root, *response);
 		request->send(response);
-		});
+	});
 }
 
 void setupSettingsPost()
@@ -193,21 +278,26 @@ void setupEpdScan()
 		String json = "[";
 		Serial.printf("Browsing for service _%s._%s.local. ... ", "http", "tcp");
 		int n = MDNS.queryService("http", "tcp");
-		if (n == 0) {
+		if (n == 0)
+		{
 			Serial.println("no services found");
 		}
-		else {
+		else
+		{
 			Serial.print(n);
 			Serial.println(" service(s) found");
 
 			size_t cnt = 0;
-			for (size_t i = 0; i < n; ++i) {
+			for (size_t i = 0; i < n; ++i)
+			{
 				// checking for epd
-				if (MDNS.hasTxt(i, "epd")) {
+				if (MDNS.hasTxt(i, "epd"))
+				{
 					if (cnt)
 					{
 						json += ",";
 					}
+					cnt++;
 
 					json += "{";
 					json += "\"hostname\":\"" + MDNS.hostname(i) + "\"";
@@ -222,7 +312,7 @@ void setupEpdScan()
 		json += "]";
 		request->send(200, "application/json", json);
 		json = String();
-		});
+	});
 }
 
 /**
@@ -255,7 +345,7 @@ void setupWifiScan()
 		json += "]";
 		request->send(200, "application/json", json);
 		json = String();
-		});
+	});
 }
 
 /**
@@ -316,7 +406,7 @@ void setupApiUpdate()
 		}
 
 		request->send(200, "application/ld+json; charset=utf-8", "{}");
-		});
+	});
 }
 
 void setupOTA()
@@ -337,37 +427,37 @@ void setupOTA()
 			response->addHeader("Connection", "close");
 			request->send(response); },
 		[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-				if (!index)
+			if (!index)
+			{
+				Serial.printf("Update Start: %s\n", filename.c_str());
+				// bool canBegin = Update.begin(contentLength, U_FLASH);
+				// bool canBegin = Update.begin(contentLength, U_SPIFFS);
+				if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000))
 				{
-					Serial.printf("Update Start: %s\n", filename.c_str());
-					// bool canBegin = Update.begin(contentLength, U_FLASH);
-					// bool canBegin = Update.begin(contentLength, U_SPIFFS);
-					if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000))
-					{
-						Update.printError(Serial);
-					}
+					Update.printError(Serial);
 				}
+			}
 
-				if (!Update.hasError())
+			if (!Update.hasError())
+			{
+				if (Update.write(data, len) != len)
 				{
-					if (Update.write(data, len) != len)
-					{
-						Update.printError(Serial);
-					}
+					Update.printError(Serial);
 				}
+			}
 
-				if (final)
+			if (final)
+			{
+				if (Update.end(true))
 				{
-					if (Update.end(true))
-					{
-						Serial.printf("Update Success: %uB\n", index + len);
-					}
-					else
-					{
-						Update.printError(Serial);
-					}
+					Serial.printf("Update Success: %uB\n", index + len);
 				}
-			});
+				else
+				{
+					Update.printError(Serial);
+				}
+			}
+		});
 }
 
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
@@ -470,7 +560,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 
 void sendDataWs(DynamicJsonDocument doc)
 {
-	Serial.println(F("sendDataWs"));
+	// Serial.println(F("sendDataWs"));
 
 	size_t len = measureJson(doc);
 	AsyncWebSocketMessageBuffer *buffer = ws.makeBuffer(len); //  creates a buffer (len + 1) for you.
@@ -479,5 +569,4 @@ void sendDataWs(DynamicJsonDocument doc)
 		serializeJson(doc, (char *)buffer->get(), len + 1);
 		ws.textAll(buffer);
 	}
-
 }
