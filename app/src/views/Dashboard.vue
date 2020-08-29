@@ -195,8 +195,7 @@
     },
     computed: {
       favoriteList () {
-        // todo filter by real fav eg. defined name
-        return this.sensors.filter(sensor => !this.isOutdated(sensor.last_update))
+        return this.sensors.filter(sensor => sensor.label)
       },
       recentlyActivity () {
         return this.sensors.slice(0).sort((a, b) => (a.last_update > b.last_update) ? -1 : 1)
