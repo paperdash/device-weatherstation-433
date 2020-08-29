@@ -119,7 +119,7 @@ void loopApp()
 void setupSensorsGet()
 {
 	server.on("/api/sensors", HTTP_GET, [](AsyncWebServerRequest *request) {
-		AsyncResponseStream *response = request->beginResponseStream("application/json");
+		AsyncResponseStream *response = request->beginResponseStream("application/ld+json; charset=utf-8");
 
 		// Allocate a temporary JsonDocument
 		const size_t capacity = JSON_ARRAY_SIZE(20) + 20 * JSON_OBJECT_SIZE(4) + 800;
