@@ -25,7 +25,7 @@ const MY_ICONS = {
     //expand: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/keyboard_arrow_down/baseline.svg')},
     menu: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/menu/baseline.svg')},
     //subgroup: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/arrow_drop_down/baseline.svg')},
-    //dropdown: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/arrow_drop_down/baseline.svg')},
+    dropdown: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/arrow_drop_down/baseline.svg')},
     //radioOn: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/radio_button_checked/baseline.svg')},
     //radioOff: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/radio_button_unchecked/baseline.svg')},
     //edit: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/edit/baseline.svg')},
@@ -52,6 +52,7 @@ const MY_ICONS = {
 	dashboard: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/dashboard/baseline.svg')},
 	wifi: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/wifi/baseline.svg')},
 	present_to_all: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/present_to_all/baseline.svg')},
+	history: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/history/baseline.svg')},
 
 	// wifi
 	signalWifiOff: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/signal_wifi_off/baseline.svg')},
