@@ -23,8 +23,10 @@
 
 #include "buf.h"
 #include "conf.h"
+#include <SPIFFS.h>
 
 #define JPEC_BUFFER_INIT_SIZ 65536
+File tmpFileBuffer;
 
 jpec_buffer_t *jpec_buffer_new(void) {
   return jpec_buffer_new2(-1);
@@ -36,6 +38,15 @@ jpec_buffer_t *jpec_buffer_new2(int siz) {
   b->stream = siz > 0 ? (uint8_t*) malloc(siz) : NULL;
   b->siz = siz;
   b->len = 0;
+
+
+	SPIFFS.remove("/tmp2.jpeg");
+	tmpFileBuffer = SPIFFS.open("/tmp2.jpeg", FILE_WRITE);
+	if (!tmpFileBuffer)
+	{
+		Serial.println("Failed to open file for writing");
+	}
+
   return b;
 }
 
@@ -43,6 +54,8 @@ void jpec_buffer_del(jpec_buffer_t *b) {
   assert(b);
   if (b->stream) free(b->stream);
   free(b);
+
+	tmpFileBuffer.close();
 }
 
 void jpec_buffer_write_byte(jpec_buffer_t *b, int val) {
@@ -54,6 +67,9 @@ void jpec_buffer_write_byte(jpec_buffer_t *b, int val) {
     b->siz = nsiz;
   }
   b->stream[b->len++] = (uint8_t) val;
+
+	// TODO callback
+	tmpFileBuffer.write((uint8_t) val);
 }
 
 void jpec_buffer_write_2bytes(jpec_buffer_t *b, int val) {

@@ -24,6 +24,7 @@
 #include "enc.h"
 #include "huff.h"
 #include "conf.h"
+#include <Arduino.h>
 
 #define JPEG_ENC_DEF_QUAL   93 /* default quality factor */
 #define JPEC_ENC_HEAD_SIZ  330 /* header typical size in bytes */
@@ -210,7 +211,25 @@ static int jpec_enc_next_block(jpec_enc_t *e) {
 
 static void jpec_enc_block_dct(jpec_enc_t *e) {
   assert(e && e->bnum >= 0);
-#define JPEC_BLOCK(col,row) e->img[(((e->by + row) < e->h) ? e->by + row : e->h-1) * \
+
+	// TODO das muss umgerechnet werden von dem / 8 bytes ding
+	//uint32_t rowSizeCode = 10; // (e->w + 8) / 8;
+	// 80 * 10 / 8 = 100 bytes buffer size
+	// 30.720
+	/*
+	Serial.print("by: ");
+	Serial.print(e->by);
+	Serial.print(", bx: ");
+	Serial.println(e->bx);
+	*/
+
+// siehe: uint8_t *ptr = &buffer[(x / 8) + y * ((WIDTH + 7) / 8)];
+#define JPEC_BLOCK(col,row) pgm_read_byte(&e->img[  ((e->bx + col) / 8) + (e->by + row) * ((e->w + 7) / 8)  ])
+
+// sieht schon recht gut aus aber noch nicht perfekt
+//#define JPEC_BLOCK(col,row) e->img[  ((e->bx + col) / 8) + (e->by + row) * ((e->w + 7) / 8)  ]
+
+#define JPEC_BLOCK_old(col,row) e->img[(((e->by + row) < e->h) ? e->by + row : e->h-1) * \
                             e->w + (((e->bx + col) < e->w) ? e->bx + col : e->w-1)]
   const float* coeff = jpec_dct;
   float tmp[64];
@@ -256,6 +275,7 @@ static void jpec_enc_block_dct(jpec_enc_t *e) {
     e->block.dct[56 + col] = coeff[6]*d0-coeff[4]*d1+coeff[2]*d2-coeff[0]*d3;
   }
 #undef JPEC_BLOCK
+#undef JPEC_BLOCK_old
 }
 
 static void jpec_enc_block_quant(jpec_enc_t *e) {
