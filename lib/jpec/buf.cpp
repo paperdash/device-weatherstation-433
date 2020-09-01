@@ -35,7 +35,7 @@ jpec_buffer_t *jpec_buffer_new(void) {
 jpec_buffer_t *jpec_buffer_new2(int siz) {
   if (siz < 0) siz = 0;
   jpec_buffer_t *b = (jpec_buffer_t*)malloc(sizeof(*b));
-  b->stream = siz > 0 ? (uint8_t*) malloc(siz) : NULL;
+  b->stream = NULL; // siz > 0 ? (uint8_t*) malloc(siz) : NULL;
   b->siz = siz;
   b->len = 0;
 
@@ -66,7 +66,7 @@ void jpec_buffer_write_byte(jpec_buffer_t *b, int val) {
     b->stream = (uint8_t *) tmp;
     b->siz = nsiz;
   }
-  b->stream[b->len++] = (uint8_t) val;
+  // b->stream[b->len++] = (uint8_t) val;
 
 	// TODO callback
 	tmpFileBuffer.write((uint8_t) val);

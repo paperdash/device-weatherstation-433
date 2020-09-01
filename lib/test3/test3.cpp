@@ -3,6 +3,7 @@
 #include "jpec.h"
 #include "test3.h"
 #include <SPI.h>
+#include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Fonts/FreeMonoBold12pt7b.h>
 
@@ -17,21 +18,76 @@ uint8_t filldata2[] = {0x0, 0x23, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0
 
 void imageTest3()
 {
+	uint16_t w = 10;
+	uint16_t h = 10;
+	// draw x / y line, 10 px each
 
+
+	// test original version
+	uint8_t *img = (uint8_t *)calloc(w * h, sizeof(uint8_t));
+	img[w * 0 + 0] = 255;
+	img[w * 0 + 1] = 255;
+	img[w * 0 + 2] = 255;
+	img[w * 0 + 3] = 255;
+	img[w * 0 + 4] = 255;
+	img[w * 0 + 5] = 255;
+	img[w * 0 + 6] = 255;
+	img[w * 0 + 7] = 255;
+	img[w * 0 + 8] = 255;
+	img[w * 0 + 9] = 255;
+	img[w * 1 + 0] = 255;
+	img[w * 2 + 0] = 255;
+	img[w * 3 + 0] = 255;
+	img[w * 4 + 0] = 255;
+	img[w * 5 + 0] = 255;
+	img[w * 6 + 0] = 255;
+	img[w * 7 + 0] = 255;
+	img[w * 8 + 0] = 255;
+	img[w * 9 + 0] = 255;
+
+
+	// test new version
+	GFXcanvas1 *_canvas;
+	_canvas = new GFXcanvas1(w, h);
+	_canvas->fillScreen(GxEPD_BLACK);
+	_canvas->drawPixel(0, 0, GxEPD_WHITE);
+	_canvas->drawPixel(2, 0, GxEPD_WHITE);
+	_canvas->drawPixel(6, 0, GxEPD_WHITE);
+	//_canvas->drawPixel(10, 0, GxEPD_WHITE);
+	//_canvas->drawPixel(1, 10, GxEPD_WHITE);
+	//_canvas->drawLine(0, 0, 0, 10, GxEPD_WHITE);
+	//_canvas->drawLine(0, 0, 10, 0, GxEPD_WHITE);
+	uint8_t *buffer = _canvas->getBuffer();
+	//uint8_t a = _canvas->getPixel(0,0);
+
+	#define JPEC_BLOCK_old(col,row) img[row * w + col]
+	#define JPEC_BLOCK_new(col,row) ((buffer[(col / 8) + row * ((w + 7) / 8)]) & (0x80 >> (col & 7))) != 0 ? 255.0 : 0.0
+
+
+	for (size_t y = 0; y < 2; y++) {
+		for (size_t x = 0; x < w; x++) {
+			float color_old = (float) JPEC_BLOCK_old(x, y);
+			uint8_t color_new = JPEC_BLOCK_new(x, y);
+
+			Serial.printf("y: %d, x: %d | ", y, x);
+			Serial.print(color_old);
+			Serial.print(" | new: ");
+			Serial.println(color_new);
+		}
+	}
 }
 
 // framebuffer verwenden
 void imageTest2()
 {
 	GFXcanvas1 *_canvas;
-	_canvas = new GFXcanvas1(40, 40);
+	_canvas = new GFXcanvas1(640, 384);
 	_canvas->fillScreen(GxEPD_BLACK);
 	_canvas->setFont(&FreeMonoBold12pt7b);
 	_canvas->setTextColor(GxEPD_WHITE, GxEPD_BLACK);
 	_canvas->setTextSize(3);
 	_canvas->setCursor(20, 50);
 
-	/*
 	_canvas->print("hallo paperdash");
 	_canvas->fillRect(0, 0, 20, 2, GxEPD_WHITE);
 	_canvas->fillRect(40, 0, 30, 2, GxEPD_WHITE);
@@ -41,20 +97,23 @@ void imageTest2()
 
 	_canvas->fillRect(100, 100, 40, 40, GxEPD_WHITE);
 	_canvas->fillRect(300, 200, 100, 100, GxEPD_WHITE);
-	*/
+	_canvas->fillRect(600, 340, 100, 100, GxEPD_WHITE);
+
 	_canvas->drawLine(0, 0, 0, 10, GxEPD_WHITE);
 	_canvas->drawLine(0, 0, 10, 0, GxEPD_WHITE);
 
 	Serial.println("____C____");
 
 	/* Create a JPEG encoder provided image data */
-	jpec_enc_t *e = jpec_enc_new2(_canvas->getBuffer(), _canvas->width(), _canvas->height(), 70);
+	jpec_enc_t *e = jpec_enc_new2(_canvas->getBuffer(), _canvas->width(), _canvas->height(), 50);
 	// jpec_enc_t *e = jpec_enc_new2(img, w, h, 70);
 	Serial.println("____D____");
 
 	/* Compress */
 	int len;
-	const uint8_t *jpeg = jpec_enc_run(e, &len);
+	long startMills = millis();
+	jpec_enc_run(e, &len);
+	Serial.println(millis() - startMills);
 	Serial.println("____E____");
 
 	/* Do something with the JPEG blob (e.g. save into a file, etc) */
@@ -116,6 +175,9 @@ void imageTest2()
 		{
 			uint8_t data = pgm_read_byte(&bitmap[rowidx + colidx]);
 			tmpFileBuffer.write(data);
+
+			//uint8_t data = _canvas->getPixel(colidx, row);
+			//tmpFileBuffer.write(data);
 		}
 
 		while (colidx++ < rowSizeBMP)
@@ -157,16 +219,17 @@ void imageTest1()
 	}
 	*/
 
+	img[w * 0 + 0] = 255;
+	img[w * 0 + 1] = 255;
+	img[w * 0 + 2] = 255;
+	img[w * 0 + 3] = 255;
+	img[w * 0 + 4] = 255;
+	img[w * 0 + 5] = 255;
+	img[w * 0 + 6] = 255;
+	img[w * 0 + 7] = 255;
+	img[w * 0 + 8] = 255;
+	img[w * 0 + 9] = 255;
 	img[w * 1 + 0] = 255;
-	img[w * 1 + 1] = 255;
-	img[w * 1 + 2] = 255;
-	img[w * 1 + 3] = 255;
-	img[w * 1 + 4] = 255;
-	img[w * 1 + 5] = 255;
-	img[w * 1 + 6] = 255;
-	img[w * 1 + 7] = 255;
-	img[w * 1 + 8] = 255;
-	img[w * 1 + 9] = 255;
 	img[w * 2 + 0] = 255;
 	img[w * 3 + 0] = 255;
 	img[w * 4 + 0] = 255;

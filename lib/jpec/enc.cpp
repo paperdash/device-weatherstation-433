@@ -209,25 +209,20 @@ static int jpec_enc_next_block(jpec_enc_t *e) {
   return rv;
 }
 
+static uint8_t getPixel(jpec_enc_t *e, int16_t x, int16_t y) {
+	// uint8_t *ptr = &buffer[(x / 8) + y * ((WIDTH + 7) / 8)];
+
+  if ((x < 0) || (y < 0) || (x >= e->w) || (y >= e->h))
+    return 0;
+
+	uint8_t *ptr = (uint8_t *)&e->img[(x / 8) + y * ((e->w + 7) / 8)];
+	return ((*ptr) & (0x80 >> (x & 7))) != 0 ? 0xFF : 0;
+}
+
 static void jpec_enc_block_dct(jpec_enc_t *e) {
   assert(e && e->bnum >= 0);
 
-	// TODO das muss umgerechnet werden von dem / 8 bytes ding
-	//uint32_t rowSizeCode = 10; // (e->w + 8) / 8;
-	// 80 * 10 / 8 = 100 bytes buffer size
-	// 30.720
-	/*
-	Serial.print("by: ");
-	Serial.print(e->by);
-	Serial.print(", bx: ");
-	Serial.println(e->bx);
-	*/
-
-// siehe: uint8_t *ptr = &buffer[(x / 8) + y * ((WIDTH + 7) / 8)];
-#define JPEC_BLOCK(col,row) pgm_read_byte(&e->img[  ((e->bx + col) / 8) + (e->by + row) * ((e->w + 7) / 8)  ])
-
-// sieht schon recht gut aus aber noch nicht perfekt
-//#define JPEC_BLOCK(col,row) e->img[  ((e->bx + col) / 8) + (e->by + row) * ((e->w + 7) / 8)  ]
+#define JPEC_BLOCK(col,row) getPixel(e, e->bx + col, e->by + row)
 
 #define JPEC_BLOCK_old(col,row) e->img[(((e->by + row) < e->h) ? e->by + row : e->h-1) * \
                             e->w + (((e->bx + col) < e->w) ? e->bx + col : e->w-1)]
