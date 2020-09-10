@@ -1,99 +1,87 @@
+#include <WiFiClient.h>
 #include <SPIFFS.h>
 #include "display.h"
-#include "toojpeg.h"
-//#include <SPI.h>
-//#include <Adafruit_GFX.h>
+
+// File webFile;
+char servername[] = "192.168.178.65";
+//char servername[] = "192.168.178.56"; // charles proxy
+WiFiClient client;
 
 
+#define MTU_Size 2 * 1460 // this size seems to work best
 
-// @see https://create.stephan-brumme.com/toojpeg/
-// https://create.stephan-brumme.com/toojpeg/example.cpp
-
-File tmpFileBuffer;
-
-// write a single byte compressed by tooJpeg
-void myOutput(unsigned char oneByte)
-{
-	// fputc(oneByte, myFileHandle);
-	Serial.print(".");
-	if (tmpFileBuffer)
-	{
-		//fputc(oneByte, tmpFileBuffer);
-		tmpFileBuffer.write(oneByte);
-	}
-}
-
-bool createFaceJPG()
-{
-	// 800x600 image
-	const auto width = 800;
-	const auto height = 600;
-	// RGB: one byte each for red, green, blue
-	const auto bytesPerPixel = 3;
-
-	// allocate memory
-	auto image = new unsigned char[width * height * bytesPerPixel];
-
-	// create a nice color transition (replace with your code)
-	for (auto y = 0; y < height; y++)
-		for (auto x = 0; x < width; x++)
-		{
-			// memory location of current pixel
-			auto offset = (y * width + x) * bytesPerPixel;
-
-			// red and green fade from 0 to 255, blue is always 127
-			image[offset] = 255 * x / width;
-			image[offset + 1] = 255 * y / height;
-			image[offset + 2] = 127;
-		}
-
-	// start JPEG compression
-	// note: myOutput is the function defined in line 18, it saves the output in example.jpg
-	// optional parameters:
-	const bool isRGB = true;					   // true = RGB image, else false = grayscale
-	const auto quality = 90;					   // compression quality: 0 = worst, 100 = best, 80 to 90 are most often used
-	const bool downsample = false;				   // false = save as YCbCr444 JPEG (better quality), true = YCbCr420 (smaller file)
-	const char *comment = "TooJpeg example image"; // arbitrary JPEG comment
-	bool ok = TooJpeg::writeJpeg(myOutput, image, width, height, isRGB, quality, downsample, comment);
-
-	delete[] image;
-
-	return ok;
-}
+byte postFile(const char *fileName, const char *servername, uint16_t port);
 
 void setupDisplay()
 {
-	SPIFFS.remove("/tmp.jpeg");
-
-	tmpFileBuffer = SPIFFS.open("/tmp.jpeg", FILE_WRITE);
-	if (!tmpFileBuffer)
-	{
-		Serial.println("Failed to open file for writing");
-	}
-
-	//createFaceJPG();
-
-/*
-	GFXcanvas1 *_canvas;
-
-	_canvas = new GFXcanvas1(640, 384);
-	/*
-	_canvas->fillScreen(BLACK);
-	_canvas->setFont(&FreeMonoBold12pt7b);
-	_canvas->setTextColor(WHITE, BLACK);
-	_canvas->setTextSize(fontsize);
-	_canvas->setCursor(x, y);
-	_canvas->print(strg);
-
-	//_canvas->getBuffer()
-	// tft.drawBitmap(x, y, _canvas->getBuffer(), w, h, WHITE, BLACK);
-
-	delete _canvas;
-	*/
+	postFile("/tmp2.jpeg", "192.168.178.65", 80);
 }
 
 void loopDisplay()
 {
-	// TODO create and send face image to connected epd
-	// every x minutes
+}
+
+byte postFile(const char *fileName, const char *servername, uint16_t port)
+{
+	// connect
+	if (client.connect(servername, port))
+	{
+		File fp = SPIFFS.open(fileName, FILE_READ);
+
+		client.setNoDelay(true);
+		Serial.println("Connected to Server");
+		Serial.println("");
+
+		// Make a HTTP request:
+		client.println("POST /api/face HTTP/1.0");
+		client.println("Host: 192.168.178.65");
+		client.println("User-Agent: curl/7.64.1");
+		client.println("Accept: */*");
+		client.printf("Content-Length: %d\n", fp.size() + 174);
+		client.println("Content-Type: multipart/form-data; boundary=------------------------5c8e39ca1848977d");
+		client.println("");
+
+		client.println("--------------------------5c8e39ca1848977d");
+		client.println("Content-Disposition: form-data; filename=\"dithering\"");
+		client.println("Content-Type: image/jpeg");
+		client.println("");
+
+		byte clientBuf[MTU_Size];
+		int clientCount = 0;
+		while (fp.available())
+		{
+			clientCount = fp.available() >= MTU_Size ? MTU_Size : fp.available();
+			fp.read(&clientBuf[0], clientCount);
+
+			if (clientCount > 0)
+			{
+				client.write((const uint8_t *)&clientBuf[0], clientCount);
+			}
+		}
+
+		Serial.println();
+		client.println();
+
+		client.println("--------------------------5c8e39ca1848977d--");
+		fp.close();
+	}
+
+	// wait for response
+	while (!client.available())
+	{
+		delay(1);
+	}
+
+	// read response
+	byte respCode = client.peek();
+	byte thisByte;
+	while (client.available())
+	{
+		thisByte = client.read();
+		Serial.write(thisByte);
+	}
+
+	client.stop();
+
+	return respCode;
 }
