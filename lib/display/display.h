@@ -4,5 +4,6 @@
 void setupDisplay();
 void loopDisplay();
 
+void updateDisplay();
 
 #endif

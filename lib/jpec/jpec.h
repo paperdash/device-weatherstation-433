@@ -44,6 +44,14 @@
 /** Type of a JPEG encoder object */
 typedef struct jpec_enc_t_ jpec_enc_t;
 
+
+// Callback signatures
+typedef void (*jpec_init_callback_t)(jpec_enc_t *jpec);
+typedef void (*jpec_enc_callback_t)(int offset, uint8_t val);
+//typedef void (*jpec_enco_callback_t)(int offset, uint8_t val);
+typedef void (*jpec_done_callback_t)(jpec_enc_t *jpec);
+
+
 /*
  * Create a JPEG encoder with default quality factor
  * `img' specifies the pointer to aligned image data.
@@ -59,7 +67,7 @@ jpec_enc_t *jpec_enc_new(const uint8_t *img, uint16_t w, uint16_t h);
 /*
  * `q` specifies the JPEG quality factor in 0..100
  */
-jpec_enc_t *jpec_enc_new2(const uint8_t *img, uint16_t w, uint16_t h, int q);
+jpec_enc_t *jpec_enc_new2(const uint8_t *img, uint16_t w, uint16_t h, int q, jpec_enc_callback_t callback);
 
 /*
  * Release a JPEG encoder object

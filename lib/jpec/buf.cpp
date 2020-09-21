@@ -23,53 +23,44 @@
 
 #include "buf.h"
 #include "conf.h"
-#include <SPIFFS.h>
 
 #define JPEC_BUFFER_INIT_SIZ 65536
-File tmpFileBuffer;
 
 jpec_buffer_t *jpec_buffer_new(void) {
-  return jpec_buffer_new2(-1);
+  // return jpec_buffer_new2(-1);
 }
 
-jpec_buffer_t *jpec_buffer_new2(int siz) {
+jpec_buffer_t *jpec_buffer_new2(int siz, jpec_enc_callback_t callback) {
   if (siz < 0) siz = 0;
   jpec_buffer_t *b = (jpec_buffer_t*)malloc(sizeof(*b));
-  b->stream = NULL; // siz > 0 ? (uint8_t*) malloc(siz) : NULL;
+  // b->stream = NULL; // siz > 0 ? (uint8_t*) malloc(siz) : NULL;
   b->siz = siz;
   b->len = 0;
 
-
-	SPIFFS.remove("/tmp2.jpeg");
-	tmpFileBuffer = SPIFFS.open("/tmp2.jpeg", FILE_WRITE);
-	if (!tmpFileBuffer)
-	{
-		Serial.println("Failed to open file for writing");
-	}
+	b->callback = callback;
 
   return b;
 }
 
 void jpec_buffer_del(jpec_buffer_t *b) {
   assert(b);
-  if (b->stream) free(b->stream);
+  // if (b->stream) free(b->stream);
   free(b);
-
-	tmpFileBuffer.close();
 }
 
 void jpec_buffer_write_byte(jpec_buffer_t *b, int val) {
   assert(b);
   if (b->siz == b->len) {
     int nsiz = (b->siz > 0) ? 2 * b->siz : JPEC_BUFFER_INIT_SIZ;
-    void* tmp = realloc(b->stream, nsiz);
-    b->stream = (uint8_t *) tmp;
+    // void* tmp = realloc(b->stream, nsiz);
+    // b->stream = (uint8_t *) tmp;
     b->siz = nsiz;
   }
   // b->stream[b->len++] = (uint8_t) val;
+	b->len++;
 
-	// TODO callback
-	tmpFileBuffer.write((uint8_t) val);
+	// callback
+	b->callback(b->len, (uint8_t) val);
 }
 
 void jpec_buffer_write_2bytes(jpec_buffer_t *b, int val) {

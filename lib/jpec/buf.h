@@ -26,15 +26,20 @@
 
 #include <stdint.h>
 
+// Callback signatures
+typedef void (*jpec_enc_callback_t)(int offset, uint8_t val);
+
 /** Extensible byte buffer */
 typedef struct jpec_buffer_t_ {
+	jpec_enc_callback_t callback;
   uint8_t *stream;                      /* byte buffer */
   int len;                              /* current length */
   int siz;                              /* maximum size */
 } jpec_buffer_t;
 
 jpec_buffer_t *jpec_buffer_new(void);
-jpec_buffer_t *jpec_buffer_new2(int siz);
+jpec_buffer_t *jpec_buffer_new2(int siz, jpec_enc_callback_t callback);
+// jpec_buffer_t *jpec_buffer_new2(int siz);
 void jpec_buffer_del(jpec_buffer_t *b);
 void jpec_buffer_write_byte(jpec_buffer_t *b, int val);
 void jpec_buffer_write_2bytes(jpec_buffer_t *b, int val);

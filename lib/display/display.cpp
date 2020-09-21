@@ -1,24 +1,73 @@
 #include <WiFiClient.h>
 #include <SPIFFS.h>
+#include <Adafruit_GFX.h>
 #include "display.h"
+#include "face.h"
+#include "jpec.h"
 
 // File webFile;
-char servername[] = "192.168.178.65";
+//char servername[] = "192.168.178.65";
 //char servername[] = "192.168.178.56"; // charles proxy
 WiFiClient client;
 
 
 #define MTU_Size 2 * 1460 // this size seems to work best
+File tmpFileCache;
 
+void exportJPG(GFXcanvas1 *_canvas, const char *fileName);
 byte postFile(const char *fileName, const char *servername, uint16_t port);
+
 
 void setupDisplay()
 {
-	postFile("/tmp2.jpeg", "192.168.178.65", 80);
+	// TODO load settings for remote display
 }
 
 void loopDisplay()
 {
+}
+
+
+void updateDisplay()
+{
+	GFXcanvas1 *_canvas = getFaceCanvas();
+
+	exportJPG(_canvas, "/tmp2.jpeg");
+	postFile("/tmp2.jpeg", "192.168.178.65", 80);
+}
+
+void exportJPG(GFXcanvas1 *_canvas, const char *fileName)
+{
+	SPIFFS.remove(fileName);
+	tmpFileCache = SPIFFS.open(fileName, FILE_WRITE);
+	if (!tmpFileCache)
+	{
+		Serial.println("Failed to open file for writing");
+	}
+
+	/* Create a JPEG encoder provided image data */
+	jpec_enc_t *e = jpec_enc_new2(_canvas->getBuffer(), _canvas->width(), _canvas->height(), 50, [](int offset, uint8_t val) {
+		tmpFileCache.write(val);
+	});
+	// jpec_enc_t *e = jpec_enc_new2(img, w, h, 70);
+	Serial.println("____D____");
+
+	/* Compress */
+	int len;
+	long startMills = millis();
+	jpec_enc_run(e, &len);
+	Serial.print(millis() - startMills);
+	Serial.println("ms");
+	//Serial.printf("File size: %d\n", len);
+	Serial.println("____E____");
+
+	// printf("Done: result.jpg (%d bytes)\n", len);
+	Serial.println("____F____");
+
+	/* Release the encoder */
+	jpec_enc_del(e);
+	Serial.println("____G____");
+	tmpFileCache.close();
 }
 
 byte postFile(const char *fileName, const char *servername, uint16_t port)

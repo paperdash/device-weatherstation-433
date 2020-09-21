@@ -1,9 +1,11 @@
 #ifndef FACE_H
 #define FACE_H
 
+#include <Adafruit_GFX.h>
 
 void setupFace();
-void loopFace();
+void updateFace();
 
+GFXcanvas1 * getFaceCanvas();
 
 #endif

@@ -4,9 +4,9 @@
 #include "settings.h"
 #include "sensor.h"
 #include "datetime.h"
-#include "app.h"
 #include "display.h"
-#include "test3.h"
+#include "face.h"
+#include "app.h"
 
 void setup()
 {
@@ -32,8 +32,9 @@ void setup()
 		setupDateTime();
 	}
 
+	setupFace();
+	setupDisplay();
 	setupApp();
-	setupTest3();
 
 	Serial.println();
 	Serial.println("setup - done");

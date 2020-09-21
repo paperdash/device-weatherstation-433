@@ -9,8 +9,8 @@
 #include "app.h"
 #include "settings.h"
 #include "sensor.h"
-#include "jpec.h"
-#include "face.h"
+//#include "face.h"
+#include "display.h"
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -23,6 +23,7 @@ void setupSettingsPost();
 void setupSensorsGet();
 void setupSensorUpdatePut();
 void setupEpdScan();
+void setupEpdUpdate();
 void setupWifiScan();
 void setupWifiConnect();
 void setupApiUpdate();
@@ -51,6 +52,7 @@ void setupApp()
 	setupSensorsGet();
 	setupSensorUpdatePut();
 	setupEpdScan();
+	setupEpdUpdate();
 	setupWifiScan();
 	setupWifiConnect();
 	setupApiUpdate();
@@ -313,6 +315,16 @@ void setupEpdScan()
 		json += "]";
 		request->send(200, "application/json", json);
 		json = String();
+	});
+}
+
+void setupEpdUpdate()
+{
+	server.on("/api/epd/update", HTTP_GET, [](AsyncWebServerRequest *request) {
+
+		updateDisplay();
+
+		request->send(200, "application/json", "{}");
 	});
 }
 

@@ -33,7 +33,7 @@
 typedef struct jpec_enc_t_ jpec_enc_t;
 
 jpec_enc_t *jpec_enc_new(const uint8_t *img, uint16_t w, uint16_t h);
-jpec_enc_t *jpec_enc_new2(const uint8_t *img, uint16_t w, uint16_t h, int q);
+jpec_enc_t *jpec_enc_new2(const uint8_t *img, uint16_t w, uint16_t h, int q, jpec_enc_callback_t callback);
 
 void jpec_enc_del(jpec_enc_t *e);
 const uint8_t *jpec_enc_run(jpec_enc_t *e, int *len);

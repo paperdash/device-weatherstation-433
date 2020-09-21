@@ -47,10 +47,10 @@ static void jpec_enc_block_quant(jpec_enc_t *e);
 static void jpec_enc_block_zz(jpec_enc_t *e);
 
 jpec_enc_t *jpec_enc_new(const uint8_t *img, uint16_t w, uint16_t h) {
-  return jpec_enc_new2(img, w, h, JPEG_ENC_DEF_QUAL);
+  // return jpec_enc_new2(img, w, h, JPEG_ENC_DEF_QUAL);
 }
 
-jpec_enc_t *jpec_enc_new2(const uint8_t *img, uint16_t w, uint16_t h, int q) {
+jpec_enc_t *jpec_enc_new2(const uint8_t *img, uint16_t w, uint16_t h, int q, jpec_enc_callback_t callback) {
   //assert(img && w > 0 && !(w & 0x7) && h > 0 && !(h & 0x7));
   jpec_enc_t *e = (jpec_enc_t *)malloc(sizeof(*e));
   e->img = img;
@@ -63,7 +63,7 @@ jpec_enc_t *jpec_enc_new2(const uint8_t *img, uint16_t w, uint16_t h, int q) {
   e->bx = -1;
   e->by = -1;
   int bsiz = JPEC_ENC_HEAD_SIZ + e->bmax * JPEC_ENC_BLOCK_SIZ;
-  e->buf = jpec_buffer_new2(bsiz);
+  e->buf = jpec_buffer_new2(bsiz, callback);
   e->hskel = (jpec_huff_skel_t*)malloc(sizeof(*e->hskel));
   return e;
 }
@@ -224,8 +224,6 @@ static void jpec_enc_block_dct(jpec_enc_t *e) {
 
 #define JPEC_BLOCK(col,row) getPixel(e, e->bx + col, e->by + row)
 
-#define JPEC_BLOCK_old(col,row) e->img[(((e->by + row) < e->h) ? e->by + row : e->h-1) * \
-                            e->w + (((e->bx + col) < e->w) ? e->bx + col : e->w-1)]
   const float* coeff = jpec_dct;
   float tmp[64];
   for (int row = 0; row < 8; row++) {
@@ -270,7 +268,6 @@ static void jpec_enc_block_dct(jpec_enc_t *e) {
     e->block.dct[56 + col] = coeff[6]*d0-coeff[4]*d1+coeff[2]*d2-coeff[0]*d3;
   }
 #undef JPEC_BLOCK
-#undef JPEC_BLOCK_old
 }
 
 static void jpec_enc_block_quant(jpec_enc_t *e) {
