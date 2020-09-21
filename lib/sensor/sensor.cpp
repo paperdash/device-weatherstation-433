@@ -30,7 +30,6 @@ int32_t autoSaveEverySeconds = 300 * 1000; // 5 MIN
 // private methods
 void rfCallback(const String &protocol, const String &message, int status, size_t repeats, const String &deviceID);
 void loadSensors();
-void saveSensors();
 bool isAutoSavedRequired();
 void unsavedSinceReset();
 
@@ -234,21 +233,13 @@ void rfCallback(const String &protocol, const String &message, int status, size_
 		{
 			if (!strcmp(filterProtocol[i], protocol.c_str()))
 			{
-				/*
-				Serial.print("Valid message: [");
-				Serial.print(protocol);
-				Serial.print("] ");
-				Serial.print(deviceID);
-				Serial.print(" - ");
-				Serial.print(message);
-				Serial.println();
-				*/
-
 				// get sensor data
 				doc.clear();
 				deserializeJson(doc, message, DeserializationOption::Filter(filter));
 
 				structSensorData sensor;
+				memset(&sensor, 0, sizeof(sensor));
+
 				sensor.id = deviceID.toInt();
 				sensor.temperature = doc["temperature"];
 				sensor.humidity = doc["humidity"];
@@ -263,6 +254,9 @@ void rfCallback(const String &protocol, const String &message, int status, size_
 				}
 
 				updateSensor(deviceID.toInt(), sensor);
+
+				doc["id"] = sensor.id;
+				doc["protocol"] = sensor.protocol;
 				sendDataWs(doc);
 			}
 		}

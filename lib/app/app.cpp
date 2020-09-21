@@ -9,6 +9,8 @@
 #include "app.h"
 #include "settings.h"
 #include "sensor.h"
+#include "jpec.h"
+#include "face.h"
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -192,8 +194,6 @@ void setupSensorUpdatePut()
 			uint16_t sensorId = request->pathArg(0).toInt();
 			DynamicJsonDocument doc(2048);
 
-			// TODO deserializeJson(doc, message, DeserializationOption::Filter(filter));
-
 			DeserializationError error = deserializeJson(doc, data);
 			if (error)
 			{
@@ -204,8 +204,8 @@ void setupSensorUpdatePut()
 			}
 			else
 			{
-				// TODO
 				structSensorData sensor;
+				memset(&sensor, 0, sizeof(sensor));
 
 				JsonVariant id = doc["id"];
 				if (!id.isNull()) {
@@ -225,6 +225,7 @@ void setupSensorUpdatePut()
 				}
 
 				updateSensor(sensorId, sensor);
+				saveSensors();
 
 				request->send(200, "application/ld+json; charset=utf-8", "{}");
 			} });
