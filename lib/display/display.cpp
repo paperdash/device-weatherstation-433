@@ -5,9 +5,6 @@
 #include "face.h"
 #include "jpec.h"
 
-// File webFile;
-//char servername[] = "192.168.178.65";
-//char servername[] = "192.168.178.56"; // charles proxy
 WiFiClient client;
 
 
@@ -30,6 +27,7 @@ void loopDisplay()
 
 void updateDisplay()
 {
+	updateFace();
 	GFXcanvas1 *_canvas = getFaceCanvas();
 
 	exportJPG(_canvas, "/tmp2.jpeg");
@@ -49,8 +47,6 @@ void exportJPG(GFXcanvas1 *_canvas, const char *fileName)
 	jpec_enc_t *e = jpec_enc_new2(_canvas->getBuffer(), _canvas->width(), _canvas->height(), 50, [](int offset, uint8_t val) {
 		tmpFileCache.write(val);
 	});
-	// jpec_enc_t *e = jpec_enc_new2(img, w, h, 70);
-	Serial.println("____D____");
 
 	/* Compress */
 	int len;
@@ -58,15 +54,9 @@ void exportJPG(GFXcanvas1 *_canvas, const char *fileName)
 	jpec_enc_run(e, &len);
 	Serial.print(millis() - startMills);
 	Serial.println("ms");
-	//Serial.printf("File size: %d\n", len);
-	Serial.println("____E____");
-
-	// printf("Done: result.jpg (%d bytes)\n", len);
-	Serial.println("____F____");
 
 	/* Release the encoder */
 	jpec_enc_del(e);
-	Serial.println("____G____");
 	tmpFileCache.close();
 }
 
