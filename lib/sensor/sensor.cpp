@@ -185,6 +185,7 @@ void updateSensor(uint16_t id, structSensorData sensor)
 				Serial.println(id);
 
 				sensorList[s].id = id;
+				index = s;
 				break;
 			}
 		}
