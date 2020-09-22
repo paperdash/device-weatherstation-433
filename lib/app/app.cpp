@@ -9,7 +9,6 @@
 #include "app.h"
 #include "settings.h"
 #include "sensor.h"
-//#include "face.h"
 #include "display.h"
 
 AsyncWebServer server(80);
@@ -29,8 +28,8 @@ void setupWifiConnect();
 void setupApiUpdate();
 void setupOTA();
 
-//flag to use from web update to reboot the ESP
 bool shouldReboot = false;
+bool triggerDisplayUpdate = false;
 
 void setupApp()
 {
@@ -115,6 +114,10 @@ void loopApp()
 		Serial.println("Rebooting...");
 		delay(100);
 		ESP.restart();
+	}
+	else if (triggerDisplayUpdate)
+	{
+		updateDisplay();
 	}
 
 	ws.cleanupClients();
@@ -322,7 +325,7 @@ void setupEpdUpdate()
 {
 	server.on("/api/epd/update", HTTP_GET, [](AsyncWebServerRequest *request) {
 
-		updateDisplay();
+		triggerDisplayUpdate = true;
 
 		request->send(200, "application/json", "{}");
 	});
