@@ -1,37 +1,49 @@
 #include <WiFiClient.h>
 #include <SPIFFS.h>
 #include <Adafruit_GFX.h>
+#include <ArduinoNvs.h>
 #include "display.h"
 #include "face.h"
 #include "jpec.h"
 
-WiFiClient client;
-
-
 #define MTU_Size 2 * 1460 // this size seems to work best
+WiFiClient client;
 File tmpFileCache;
 
 void exportJPG(GFXcanvas1 *_canvas, const char *fileName);
 byte postFile(const char *fileName, const char *servername, uint16_t port);
 
-
 void setupDisplay()
 {
-	// TODO load settings for remote display
 }
 
 void loopDisplay()
 {
 }
 
-
-void updateDisplay()
+bool updateDisplay()
 {
+	String host = NVS.getString("display.host");
+
+	if (!host.isEmpty())
+	{
+		updateDisplay(host.c_str());
+	}
+
+	return true;
+}
+
+bool updateDisplay(const char *host)
+{
+	Serial.printf("Update display '%s'\n", host);
+
 	updateFace();
 	GFXcanvas1 *_canvas = getFaceCanvas();
 
 	exportJPG(_canvas, "/tmp2.jpeg");
-	postFile("/tmp2.jpeg", "192.168.178.65", 80);
+	postFile("/tmp2.jpeg", host, 80);
+
+	return true;
 }
 
 void exportJPG(GFXcanvas1 *_canvas, const char *fileName)

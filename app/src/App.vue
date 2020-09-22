@@ -89,7 +89,7 @@
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-list-item to="/setup/display">
+              <v-list-item to="/display">
                 <v-list-item-icon>
                   <v-icon>$present_to_all</v-icon>
                 </v-list-item-icon>

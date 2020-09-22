@@ -22,6 +22,7 @@ void setupSettingsPost();
 void setupSensorsGet();
 void setupSensorUpdatePut();
 void setupEpdScan();
+void setupEpdConnect();
 void setupEpdUpdate();
 void setupWifiScan();
 void setupWifiConnect();
@@ -51,6 +52,7 @@ void setupApp()
 	setupSensorsGet();
 	setupSensorUpdatePut();
 	setupEpdScan();
+	setupEpdConnect();
 	setupEpdUpdate();
 	setupWifiScan();
 	setupWifiConnect();
@@ -117,6 +119,7 @@ void loopApp()
 	}
 	else if (triggerDisplayUpdate)
 	{
+		triggerDisplayUpdate = false;
 		updateDisplay();
 	}
 
@@ -247,7 +250,10 @@ void setupSettingsGet()
 		root["system"]["timezone"] = NVS.getString("system.timezone");
 		root["system"]["utc"] = NVS.getInt("system.utc");
 		root["system"]["dst"] = NVS.getInt("system.dst");
-		root["system"]["wifi"] = NVS.getString("wifi.ssid");
+
+		root["wifi"]["ssid"] = NVS.getString("wifi.ssid");
+
+		root["display"]["host"] = NVS.getString("display.host");
 
 		serializeJson(root, *response);
 		request->send(response);
@@ -306,7 +312,7 @@ void setupEpdScan()
 					cnt++;
 
 					json += "{";
-					json += "\"hostname\":\"" + MDNS.hostname(i) + "\"";
+					json += "\"host\":\"" + MDNS.hostname(i) + "\"";
 					json += ",\"ip\":\"" + MDNS.IP(i).toString() + "\"";
 					json += ",\"port\":" + String(MDNS.port(i));
 					json += "}";
@@ -321,10 +327,36 @@ void setupEpdScan()
 	});
 }
 
+void setupEpdConnect()
+{
+	server.on(
+		"/api/epd/connect", HTTP_POST, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+			DynamicJsonDocument doc(1024);
+
+			DeserializationError error = deserializeJson(doc, data);
+			if (error) {
+				Serial.print(F("deserializeJson() failed with code "));
+				Serial.println(error.c_str());
+
+				request->send(404, "application/ld+json; charset=utf-8", "{}");
+			}
+			else
+			{
+				JsonVariant host = doc["host"];
+				if (!host.isNull()) {
+					Serial.println(host.as<char*>());
+
+					NVS.setString("display.host", host);
+					request->send(200, "application/ld+json; charset=utf-8", "{}");
+				}
+
+				request->send(400, "application/ld+json; charset=utf-8", "{}");
+			} });
+}
+
 void setupEpdUpdate()
 {
 	server.on("/api/epd/update", HTTP_GET, [](AsyncWebServerRequest *request) {
-
 		triggerDisplayUpdate = true;
 
 		request->send(200, "application/json", "{}");

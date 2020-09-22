@@ -4,6 +4,7 @@
 void setupDisplay();
 void loopDisplay();
 
-void updateDisplay();
+bool updateDisplay();
+bool updateDisplay(const char *host);
 
 #endif

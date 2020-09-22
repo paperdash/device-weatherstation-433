@@ -12,24 +12,13 @@ const _settings = {
 		dst: 0,
 		wifi: ""
 	},
-	device: {
-		theme: "black",
-		name: "dummy"
+	wifi: {
+		ssid: ""
 	},
-	playlist: {
-		timer: 60
+	display: {
+		host: "paperdash-epd",
+		theme: "black"
 	},
-	weather: {
-		api: "",
-		location: 2766824,
-		lang: "de",
-		unit: "metric"
-	},
-	cloud: {
-		mode: "active",
-		url: "http://",
-		token: "###"
-	}
 }
 
 // eslint-disable-next-line
@@ -73,19 +62,19 @@ const _wifiScan = [{
 	"bssid": "38:10:D5:34:80:1B",
 	"channel": 11,
 	"secure": 3
-}, { "rssi": -75, "ssid": "FRITZ!Box 7430 JI", "bssid": "38:10:D5:5D:FE:7C", "channel": 1, "secure": 3 }, {
+}, {"rssi": -75, "ssid": "FRITZ!Box 7430 JI", "bssid": "38:10:D5:5D:FE:7C", "channel": 1, "secure": 3}, {
 	"rssi": -87,
 	"ssid": "Vodafone Hotspot",
 	"bssid": "AA:0E:14:BD:50:ED",
 	"channel": 1,
 	"secure": 0
-}, { "rssi": -88, "ssid": "WLAN-548426", "bssid": "E0:60:66:55:7F:C5", "channel": 1, "secure": 3 }, {
+}, {"rssi": -88, "ssid": "WLAN-548426", "bssid": "E0:60:66:55:7F:C5", "channel": 1, "secure": 3}, {
 	"rssi": -89,
 	"ssid": "Familie Kalinowski",
 	"bssid": "C8:0E:14:BD:50:ED",
 	"channel": 1,
 	"secure": 3
-}, { "rssi": -91, "ssid": "WLAN-507287", "bssid": "E0:60:66:48:6C:6B", "channel": 1, "secure": 3 }, {
+}, {"rssi": -91, "ssid": "WLAN-507287", "bssid": "E0:60:66:48:6C:6B", "channel": 1, "secure": 3}, {
 	"rssi": -94,
 	"ssid": "TP-LINK_7238",
 	"bssid": "A4:2B:B0:D8:72:38",
@@ -94,7 +83,21 @@ const _wifiScan = [{
 }]
 
 // eslint-disable-next-line
-const _sensors = [{ "id": 13, "temperature": 24.50, "humidity": 53, "last_update": 1596732684 }, { "id": 186, "temperature": 24.90, "humidity": 54, "last_update": 1596732697 }, { "id": 161, "temperature": 24.30, "humidity": 53, "last_update": 1596732700 }, { "id": 71, "temperature": 24.70, "humidity": 52, "last_update": 1596732710 }]
+const _sensors = [{"id": 13, "temperature": 24.50, "humidity": 53, "last_update": 1596732684}, {
+	"id": 186,
+	"temperature": 24.90,
+	"humidity": 54,
+	"last_update": 1596732697
+}, {"id": 161, "temperature": 24.30, "humidity": 53, "last_update": 1596732700}, {
+	"id": 71,
+	"temperature": 24.70,
+	"humidity": 52,
+	"last_update": 1596732710
+}]
+
+// eslint-disable-next-line
+const _epd = [{"host": "paperdash-display", "ip": "192.168.178.65", "port": 80}]
+
 
 import axios from 'axios'
 
@@ -158,6 +161,43 @@ export default {
 			.then(response => cb(response.data))
 	},
 
+
+	/**
+	 * scan for display in range
+	 * @param {*} cb
+	 */
+	displayScan(cb) {
+		return axios
+			.get('/api/epd/scan')
+			.then(response => cb(response.data))
+	},
+
+	/**
+	 * connect to display
+	 * @param {*} host
+	 * @param {*} cb
+	 */
+	displayConnect(host, cb) {
+		return axios
+			.post('/api/epd/connect', {
+				host: host
+			}, {
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
+			.then(response => cb(response.data))
+	},
+
+	/**
+	 * trigger display update
+	 * @param {*} cb
+	 */
+	displayUpdate(cb) {
+		return axios
+			.get('/api/epd/update')
+			.then(response => cb(response.data))
+	},
 
 	/**
 	 * @param cb
