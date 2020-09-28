@@ -19,7 +19,7 @@ const uint8_t filterProtocolCount = sizeof(filterProtocol) / sizeof(filterProtoc
 
 // config sensor protocol parsing
 StaticJsonDocument<200> filter;
-const size_t capacity = JSON_OBJECT_SIZE(3) + 30;
+const size_t capacity = JSON_OBJECT_SIZE(4) + 40;
 DynamicJsonDocument doc(capacity);
 
 // config sensor db
@@ -198,8 +198,8 @@ void updateSensor(uint16_t id, structSensorData sensor)
 	}
 
 	// update sensor
-	Serial.print(F("update sensor... slot #"));
-	Serial.println(index);
+	//Serial.print(F("update sensor... slot #"));
+	//Serial.println(index);
 
 	if (sensor.id)
 	{
@@ -223,7 +223,6 @@ void updateSensor(uint16_t id, structSensorData sensor)
 	}
 }
 
-
 void rfCallback(const String &protocol, const String &message, int status, size_t repeats, const String &deviceID)
 {
 	// check if message is valid and process it
@@ -237,6 +236,13 @@ void rfCallback(const String &protocol, const String &message, int status, size_
 				// get sensor data
 				doc.clear();
 				deserializeJson(doc, message, DeserializationOption::Filter(filter));
+
+				// validate entry
+				JsonVariant temp = doc["temperature"];
+				if (temp.isNull())
+				{
+					return;
+				}
 
 				structSensorData sensor;
 				memset(&sensor, 0, sizeof(sensor));
@@ -257,7 +263,9 @@ void rfCallback(const String &protocol, const String &message, int status, size_
 				updateSensor(deviceID.toInt(), sensor);
 
 				doc["id"] = sensor.id;
-				doc["protocol"] = sensor.protocol;
+				doc["temperature"] = sensor.temperature;
+				doc["humidity"] = sensor.humidity;
+				// doc["last_update"] = sensor.last_update;
 				sendDataWs(doc);
 			}
 		}
