@@ -21,7 +21,7 @@
 
                 <v-list-item class="px-1" @click="onWifiSelect(wifi)">
                   <v-list-item-icon class="mr-2 ml-2">
-                    <v-icon v-if="wifi.ssid === settings.system.wifi">$check</v-icon>
+                    <v-icon v-if="wifi.ssid === settings.wifi.ssid">$check</v-icon>
 
                     <v-progress-circular
                       v-if="wifi.ssid === connectingSSID"

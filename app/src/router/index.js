@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 
 const Dashboard = () => import('../views/Dashboard')
 const Settings = () => import('../views/Settings')
+const System = () => import('../views/System')
 const Display = () => import('../views/Display')
 
 const SetupStart = () => import('../views/Setup/Start')
@@ -17,6 +18,7 @@ export default new VueRouter({
     routes: [
         { path: '/', component: Dashboard },
 		{ path: '/settings', component: Settings, meta: { transitionName: 'slide' } },
+		{ path: '/system', component: System, meta: { transitionName: 'slide' } },
 		{ path: '/display', component: Display, meta: { transitionName: 'slide' } },
 
 		// setup wizard

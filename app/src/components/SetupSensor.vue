@@ -1,3 +1,5 @@
+<script src="../../node_modules/vue/dist/vue.runtime.esm.js"></script>
+<script src="../../node_modules/vue/dist/vue.runtime.js"></script>
 <template>
   <v-card :loading="loading">
     <v-toolbar
@@ -135,76 +137,18 @@ export default {
     },
 
     btnCancel: function() {
-      this.sensorEdit = null;
       this.$emit('done')
     },
 
     btnAccept: function () {
       this.loading = true
-      //alert("accept");
 
-      this.$store.dispatch('updateSensor', [this.sensorEdit.id, this.sensorEdit])
+      this.$store.dispatch('updateSensor', [this.sensorEdit.id, this.sensorEdit]).then(() => {
+        this.$store.commit('notification', "saved")
+        this.loading = false
 
-      // TODO snackbar...
-
-/*
-      let updateSensor
-      switch (this.action) {
-        case 'replace': {
-          updateSensor = this.replaceSensor
-
-          // device data
-          updateSensor.deviceId = this.sensor.deviceId
-          updateSensor.discoverId = this.sensor.discoverId
-
-          // live data
-          updateSensor.timestamp = this.sensor.timestamp
-          updateSensor.temperature = this.sensor.temperature
-          updateSensor.humidity = this.sensor.humidity
-
-          // remove old entry
-          let index = this.sensors.findIndex(sensor => sensor.id === this.sensor.id)
-          Vue.delete(this.sensors, index);
-
-          break;
-        }
-
-        case 'config': {
-          updateSensor = this.sensor
-
-          updateSensor.title = this.sensorEdit.title
-          updateSensor.kind = this.sensorEdit.kind
-
-          break;
-        }
-      }
-
-
-      // TODO persist data
-      if (updateSensor) {
-        if (updateSensor.id) {
-          // update
-          api
-            .putSensor(updateSensor.id, updateSensor)
-            .then(() => {
-              this.loading = false
-
-              this.$emit('done')
-            })
-        } else {
-          // add
-          api
-            .postSensor(updateSensor)
-            .then((res) => {
-              updateSensor.id = res.data.id
-              this.loading = false
-
-              this.$emit('done')
-            })
-        }
-      }
- */
-
+        this.$emit('done')
+      })
     }
   }
 }

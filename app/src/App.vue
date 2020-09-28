@@ -10,6 +10,8 @@
       <div class="fill-height grey lighten-4">
         <v-container>
           <v-card>
+            <notifications></notifications>
+
             <v-app-bar
               color="orange darken-2"
               dark
@@ -21,10 +23,14 @@
 
               <v-spacer></v-spacer>
 
+              <template v-if="settings.display.host">
+                <v-btn :href="'http://' + settings.display.host" target="_blank" icon>
+                  <v-icon>$present_to_all</v-icon>
+                </v-btn>
+              </template>
               <template v-if="stats.wifi.connected">
                 <v-icon class="mr-2">{{ stats.wifi.rssi | wifiIcon(0) }}</v-icon>
                 <v-chip
-                  class="ma-2"
                   color="white"
                   outlined
                   pill
@@ -99,7 +105,7 @@
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-list-item to="/setup/system">
+              <v-list-item to="/system">
                 <v-list-item-icon>
                   <v-icon>$settings</v-icon>
                 </v-list-item-icon>
@@ -126,10 +132,12 @@
 import apiDevice from "./api/device";
 import "@/assets/app.css";
 import transitionPage from "@/components/TransitionPage";
+import notifications from "@/components/Notifications";
 
 export default {
   components: {
     transitionPage,
+    notifications
   },
   data: () => ({
     isLoading: true,
@@ -138,9 +146,12 @@ export default {
   }),
   created() {
     apiDevice.getSettings((settings) => {
+      // TODO move to vuex
       this.settings = settings;
 
       this.autoReloadStats();
+
+      this.$store.commit('setPushUpdate', true)
     });
   },
   watch: {
@@ -155,16 +166,9 @@ export default {
   },
   methods: {
     autoReloadStats() {
+      // TODO move to vuex
       apiDevice.getStats((stats) => {
-        // give esp some extra time befor fetch new data
-        /*
-					stats.playlist.remaining += 2
 
-					// reset old so reactive watcher can detect a change
-					if (this.$root._data.stats) {
-						this.$root._data.stats.playlist.remaining = 0
-					}
-					*/
         this.$root._data.stats = stats;
 
         setTimeout(() => {

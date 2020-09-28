@@ -8,45 +8,40 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
 	state: {
 		sensors: [],
-		liveUpdates: false,
-		//recipes: [],
-		// apiUrl: 'https://api.edamam.com/search',
-		//user: null,
-		//isAuthenticated: false,
-		//userRecipes: []
+		pushUpdate: false,
+		notifications: {},
+		sensorHistory: []
 	},
 	mutations: {
 		setSensors(state, payload) {
 			state.sensors = payload;
 		},
-		updateSensor(state, id, sensor) {
-			// TODO
-			console.log(state)
-			console.log(id)
-			console.log(sensor)
-			/*
-			state.sensors = [
-				...state.sensors.filter(element => element.id !== id), sensor
-			]
-			 */
+		updateSensor(state, payload) {
+			// update sensor
+			const i = state.sensors.findIndex(item => item.id === payload.id)
+			if (i >= 0) {
+				state.sensors[i].temperature = payload.temperature
+				state.sensors[i].humidity = payload.humidity
+				state.sensors[i].last_update = payload.last_update
+
+				// update state
+				state.sensors = [
+					...state.sensors
+				]
+			}
 		},
-		setLiveUpdate(state, enable) {
-			state.liveUpdates = enable
+		setPushUpdate(state, enable) {
+			state.pushUpdate = enable
+		},
+		addSensorHistory(state, payload) {
+			state.sensorHistory.push(payload)
+			if (state.sensorHistory.length > 20) {
+				state.sensorHistory = state.sensorHistory.slice(1)
+			}
+		},
+		notification(state, payload) {
+			state.notifications = payload
 		}
-		/*
-		setRecipes(state, payload) {
-			state.recipes = payload;
-		},
-		setUser(state, payload) {
-			state.user = payload;
-		},
-		setIsAuthenticated(state, payload) {
-			state.isAuthenticated = payload;
-		},
-		setUserRecipes(state, payload) {
-			state.userRecipes = payload;
-		}
-	 	*/
 	},
 	actions: {
 		async getSensors({ commit }) {
@@ -57,7 +52,7 @@ const store = new Vuex.Store({
 				commit('setSensors', []);
 			}
 		},
-		async updateSensor({ commit }, [id, sensor]) {
+		async putSensor({ commit }, [id, sensor]) {
 			try {
 				await axios.put('/api/sensor/' + id, {
 					label: sensor.label
@@ -148,22 +143,35 @@ const store = new Vuex.Store({
 		*/
 	},
 	getters: {
+		/*
 		isAuthenticated(state) {
 			return state.user !== null && state.user !== undefined;
 		}
+		 */
 	}
 });
 
-/*
+
+// TODO sensor push data
 const connection = new WebSocket("ws://" + window.location.host + "/ws")
 connection.onmessage = (message) => {
-	let sensor = JSON.parse(message.data)
-	sensor['last_update'] = new Date()
+	let log = JSON.parse(message.data)
+	log['last_update'] = new Date()
 
-	console.log(sensor)
-	//store.commit('updateSensor', [sensor.id, sensor]);
+	store.commit('updateSensor', log)
+	store.commit('addSensorHistory', log)
+	store.commit('notification', log)
 }
-*/
 
+store.watch(
+	state => state.pushUpdate,
+	(value) => {
+		if (value) {
+			console.info("TODO:: enable websocket")
+		} else {
+			console.info("TODO:: disable websocket")
+		}
+	}
+)
 
 export default store

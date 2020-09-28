@@ -27,9 +27,9 @@
         <v-layout wrap class="pt-5">
           <v-flex
             v-for="(sensor, i) in favoriteList"
-            :key="i" xs12 sm6 md4 lg3
+            :key="i + 1000" xs12 sm6 md4 lg3
           >
-            <v-card v-if="1" outlined class="text-center mt-16 mb-6 mx-6">
+            <v-card outlined class="text-center mt-16 mb-6 mx-6">
               <v-card-text>
                 <v-responsive
                   class="mx-auto rounded-circle elevation-10 white"
@@ -37,7 +37,14 @@
                   height="100"
                   width="100"
                 >
-                  <p class="text-no-wrap text-h4 black--text mt-6 mb-0">{{ sensor.temperature }}°</p>
+                  <transition name="slide-fade" mode="out-in">
+                    <p
+                      :key="sensor.temperature"
+                      class="text-no-wrap text-h4 black--text mt-6 mb-0">
+                      {{ sensor.temperature }}°
+                    </p>
+                  </transition>
+
                   <v-divider></v-divider>
                   <p class="text-no-wrap text-subtitle-1 grey lighten-5 pb-5">{{ sensor.humidity }}%</p>
                 </v-responsive>
@@ -58,54 +65,80 @@
       </v-tab-item>
       <v-tab-item>
         <v-card flat>
-          <!--<v-card-title class="headline">Discovered</v-card-title>-->
-
           <v-list>
+            <v-subheader>Active</v-subheader>
+
             <template
-              v-for="(sensor, i) in recentlyActivity"
+              v-for="(sensor, i) in activeList"
             >
-              <v-divider
-                v-if="i > 0"
-                :key="i"
-                style="margin-left: 95px"
-              ></v-divider>
+              <div :key="i + 2000">
+                <v-divider
+                  v-if="i > 0"
 
-              <!--
-              <v-subheader
-                v-if="isOutdated(sensor.last_update)"
-                :key="sensor.id"
-              >
-                Inactive | Favorite
-              </v-subheader>
-              -->
+                  style="margin-left: 95px"
+                ></v-divider>
 
-              <v-list-item
-                :key="i"
-                :class="{'outdated': isOutdated(sensor.last_update)}"
-                @click="openEditSensorDialog(sensor)"
-              >
-                <v-list-item-avatar height="64" width="64">
-                  <v-avatar color="orange" size="64">
-                    <span class="white--text text-h6">
-                      {{ sensor.temperature }}°
-                    </span>
-                  </v-avatar>
-                </v-list-item-avatar>
+                <v-list-item
+                  @click="openEditSensorDialog(sensor)"
+                >
+                  <v-list-item-avatar height="64" width="64">
+                    <v-avatar color="orange" size="64">
+                      <span class="white--text text-h6">
+                        {{ sensor.temperature }}°
+                      </span>
+                    </v-avatar>
+                  </v-list-item-avatar>
 
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ sensor.last_update | moment("from") }} ( {{sensor.label }} )
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ sensor.humidity }}%
-                    | {{ sensor.id }}, {{ sensor.protocol }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ sensor.last_update | moment("from") }} ( {{sensor.label }} )
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ sensor.humidity }}%
+                      | {{ sensor.id }}, {{ sensor.protocol }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
 
-                <v-list-item-action>
-                  <v-icon>$settings</v-icon>
-                </v-list-item-action>
-              </v-list-item>
+                  <v-list-item-action>
+                    <v-icon>$settings</v-icon>
+                  </v-list-item-action>
+                </v-list-item>
+              </div>
+            </template>
+
+            <v-subheader>Inactive</v-subheader>
+
+            <template
+              v-for="(sensor, i) in outdatedList"
+            >
+              <div :key="i + 3000">
+                <v-divider
+                  v-if="i > 0"
+                  style="margin-left: 95px"
+                ></v-divider>
+
+                <v-list-item
+                  class="outdated"
+                >
+                  <v-list-item-avatar height="64" width="64">
+                    <v-avatar color="orange" size="64">
+                      <span class="white--text text-h6">
+                        {{ sensor.temperature }}°
+                      </span>
+                    </v-avatar>
+                  </v-list-item-avatar>
+
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ sensor.last_update | moment("from") }} ( {{sensor.label }} )
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ sensor.humidity }}%
+                      | {{ sensor.id }}, {{ sensor.protocol }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </div>
             </template>
           </v-list>
 
@@ -118,8 +151,8 @@
 
               v-bind:sensor="editSensor"
               v-bind:sensors="sensors"
-              @close="editSensorModal = false"
-              @done="editSensorModal = false"
+              @close="editSensorDialog = false"
+              @done="editSensorDialog = false"
             />
           </v-dialog>
 
@@ -137,8 +170,8 @@
               </tr>
               </thead>
               <tbody>
-              <tr v-for="(sensor, i) in history" :key="i">
-                <td>{{ sensor.timestamp | moment("LTS") }}</td>
+              <tr v-for="(sensor, i) in sensorHistory.slice().reverse()" :key="i + 3000">
+                <td>{{ sensor.last_update | moment("LTS") }}</td>
                 <td>{{ sensor.temperature }}°</td>
                 <td>{{ sensor.humidity }}%</td>
               </tr>
@@ -146,15 +179,6 @@
             </template>
           </v-simple-table>
 
-          <!--
-          <v-list>
-            <v-list-item v-for="(sensor, i) in history" :key="i">
-              <v-list-item-content>
-                {{ sensor.temperature }} / {{ sensor.humidity }}% / {{ sensor.timestamp | moment("LTS") }}
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-          -->
         </v-card>
       </v-tab-item>
     </v-tabs-items>
@@ -162,7 +186,6 @@
 </template>
 
 <script>
-  // import apiDevice from "@/api/device";
   import { mapState } from 'vuex'
   import SetupSensor from "@/components/SetupSensor";
 
@@ -172,26 +195,13 @@
     },
     data: () => ({
       tabs: null,
-      history: [],
+      // history: [],
 
       editSensorDialog: false,
       editSensor: null
     }),
     created() {
-
       this.$store.dispatch('getSensors')
-
-
-      // get push date from sensors
-      const connection = new WebSocket("ws://" + window.location.host + "/ws");
-      const self = this
-      connection.onmessage = function (event) {
-        let log = JSON.parse(event.data)
-        log['timestamp'] = new Date()
-
-        console.log(log)
-        self.history.unshift(log)
-      };
     },
     computed: {
       favoriteList () {
@@ -200,7 +210,13 @@
       recentlyActivity () {
         return this.sensors.slice(0).sort((a, b) => (a.last_update > b.last_update) ? -1 : 1)
       },
-      ...mapState(['sensors'])
+      activeList () {
+        return this.recentlyActivity.filter(sensor => !this.isOutdated(sensor.last_update))
+      },
+      outdatedList () {
+        return this.recentlyActivity.filter(sensor => this.isOutdated(sensor.last_update))
+      },
+      ...mapState(['sensors', 'sensorHistory'])
     },
     methods: {
       isOutdated(time) {
@@ -222,5 +238,16 @@
 <style scoped>
   .outdated {
     opacity: 0.5;
+  }
+
+  .slide-fade-enter-active {
+    transition: all .3s ease;
+  }
+  .slide-fade-leave-active {
+    transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  }
+  .slide-fade-enter, .slide-fade-leave-to {
+    transform: translateX(10px);
+    opacity: 0;
   }
 </style>
