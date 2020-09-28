@@ -48,5 +48,6 @@ void loop()
 	}
 
 	loopSensor();
+	loopDisplay();
 	loopApp();
 }

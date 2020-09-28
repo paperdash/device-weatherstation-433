@@ -10,15 +10,39 @@
 WiFiClient client;
 File tmpFileCache;
 
+unsigned long lastSwitch = 0;
+int32_t timer;
+
+int32_t displayGetRemainingTimeMs();
 void exportJPG(GFXcanvas1 *_canvas, const char *fileName);
 byte postFile(const char *fileName, const char *servername, uint16_t port);
 
 void setupDisplay()
 {
+	Serial.println("setupDisplay...");
+
+	// TODO load timer
+	/*
+	timer = NVS.getInt("display.timer") * 1000;
+	if (timer < 30000)
+	{
+		timer = 30000;
+	}
+	*/
+	timer = 300 * 1000; // 5 min
+
+	// force instant update
+	lastSwitch = millis() - timer;
 }
 
 void loopDisplay()
 {
+	if (displayGetRemainingTimeMs() <= 0)
+	{
+		lastSwitch = millis();
+		Serial.println("update display...");
+		updateDisplay();
+	}
 }
 
 bool updateDisplay()
@@ -44,6 +68,11 @@ bool updateDisplay(const char *host)
 	postFile("/tmp2.jpeg", host, 80);
 
 	return true;
+}
+
+int32_t displayGetRemainingTimeMs()
+{
+	return timer - (millis() - lastSwitch);
 }
 
 void exportJPG(GFXcanvas1 *_canvas, const char *fileName)
