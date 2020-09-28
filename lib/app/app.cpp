@@ -19,6 +19,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 
 void setupSettingsGet();
 void setupSettingsPost();
+void setupSettingsFactoryReset();
 void setupSensorsGet();
 void setupSensorUpdatePut();
 void setupEpdScan();
@@ -49,6 +50,7 @@ void setupApp()
 
 	setupSettingsGet();
 	setupSettingsPost();
+	setupSettingsFactoryReset();
 	setupSensorsGet();
 	setupSensorUpdatePut();
 	setupEpdScan();
@@ -282,6 +284,16 @@ void setupSettingsPost()
 
 				request->send(200, "application/ld+json; charset=utf-8", "{}");
 			} });
+}
+
+void setupSettingsFactoryReset()
+{
+	server.on(
+		"/api/settings/reset", HTTP_GET, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+			settingsFactoryReset();
+
+			request->send(200, "application/ld+json; charset=utf-8", "{}");
+		});
 }
 
 void setupEpdScan()
