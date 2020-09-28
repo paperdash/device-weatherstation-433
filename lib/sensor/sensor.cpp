@@ -5,6 +5,7 @@
 #define ARDUINOJSON_USE_LONG_LONG 1
 #include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
+#include <ArduinoNvs.h>
 #include "app.h"
 
 #define RECEIVER_PIN 4 // any intterupt able pin
@@ -35,6 +36,8 @@ void unsavedSinceReset();
 
 void setupSensor()
 {
+	Serial.println("setupSensor...");
+
 	// filter sensor values
 	filter["temperature"] = true;
 	filter["humidity"] = true;
@@ -71,6 +74,18 @@ void sensorCleanUp()
 
 void loadSensors()
 {
+	// read user settings
+	for (size_t i = 0; i < SENSOR_COUNT; i++)
+	{
+		String key = "sensor." + i;
+
+		sensorList[i].id = NVS.getInt(key + ".id");
+
+		strlcpy(sensorList[i].label,
+				NVS.getString(key + ".label").c_str(),
+				sizeof(sensorList[i].label));
+	}
+
 	File file = SPIFFS.open(jsonStore);
 	if (!file)
 	{
@@ -145,6 +160,11 @@ void saveSensors()
 		doc[i]["last_update"] = sensorList[i].last_update;
 		doc[i]["protocol"] = sensorList[i].protocol;
 		doc[i]["label"] = sensorList[i].label;
+
+		// persist user settings
+		String key = "sensor." + i;
+		NVS.setInt(key + ".id", sensorList[i].id);
+		NVS.setString(key + ".label", sensorList[i].label);
 	}
 
 	// Serialize JSON to file
