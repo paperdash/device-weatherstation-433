@@ -21,7 +21,8 @@ void setupSettingsGet();
 void setupSettingsPost();
 void setupSettingsFactoryReset();
 void setupSensorsGet();
-void setupSensorUpdatePut();
+void setupSensorPut();
+void setupSensorDelete();
 void setupEpdScan();
 void setupEpdConnect();
 void setupEpdUpdate();
@@ -52,7 +53,8 @@ void setupApp()
 	setupSettingsPost();
 	setupSettingsFactoryReset();
 	setupSensorsGet();
-	setupSensorUpdatePut();
+	setupSensorPut();
+	setupSensorDelete();
 	setupEpdScan();
 	setupEpdConnect();
 	setupEpdUpdate();
@@ -137,65 +139,28 @@ void setupSensorsGet()
 		const size_t capacity = JSON_ARRAY_SIZE(20) + 20 * JSON_OBJECT_SIZE(4) + 800;
 		StaticJsonDocument<capacity> root;
 
+		size_t index = 0;
 		structSensorData *list = getSensorList();
 		for (uint8_t i = 0; i < SENSOR_COUNT; ++i)
 		{
 			if (list[i].id > 0)
 			{
-				root[i]["id"] = list[i].id;
-				root[i]["temperature"] = list[i].temperature;
-				root[i]["humidity"] = list[i].humidity;
-				root[i]["last_update"] = list[i].last_update;
-				root[i]["protocol"] = list[i].protocol;
-				root[i]["label"] = list[i].label;
+				root[index]["id"] = list[i].id;
+				root[index]["temperature"] = list[i].temperature;
+				root[index]["humidity"] = list[i].humidity;
+				root[index]["last_update"] = list[i].last_update;
+				root[index]["protocol"] = list[i].protocol;
+				root[index]["label"] = list[i].label;
+				index++;
 			}
 		}
 
 		serializeJson(root, *response);
 		request->send(response);
-
-		/*
-		root["system"]["country"] = NVS.getString("system.country");
-		root["system"]["language"] = NVS.getString("system.language");
-		root["system"]["timezone"] = NVS.getString("system.timezone");
-		root["system"]["utc"] = NVS.getInt("system.utc");
-		root["system"]["dst"] = NVS.getInt("system.dst");
-		root["system"]["wifi"] = NVS.getString("wifi.ssid");
-
-		serializeJson(root, *response);
-		request->send(response);
-
-		String json = "[";
-
-		structSensorData *list = getSensorList();
-		for (uint8_t i = 0; i < SENSOR_COUNT; ++i)
-		{
-			if (list[i].id > 0)
-			{
-				if (i)
-				{
-					json += ",";
-				}
-
-				json += "{";
-				json += "\"id\":" + String(list[i].id);
-				json += ",\"temperature\":" + String(list[i].temperature || 0);
-				json += ",\"humidity\":" + String(list[i].humidity || 0);
-				json += ",\"last_update\":" + String(list[i].last_update);
-				json += ",\"protocol\":\"" + String(list[i].protocol) + "\"";
-				json += ",\"label\":\"" + String(list[i].label) + "\"";
-				json += "}";
-			}
-		}
-
-		json += "]";
-		request->send(200, "application/json", json);
-		json = String();
-		*/
 	});
 }
 
-void setupSensorUpdatePut()
+void setupSensorPut()
 {
 	server.on(
 		"^\\/api\\/sensor\\/([0-9]+)$", HTTP_PUT, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
@@ -239,6 +204,19 @@ void setupSensorUpdatePut()
 
 				request->send(200, "application/ld+json; charset=utf-8", "{}");
 			} });
+}
+
+void setupSensorDelete()
+{
+	server.on(
+		"^\\/api\\/sensor\\/([0-9]+)$", HTTP_DELETE, [](AsyncWebServerRequest *request) {
+			Serial.println(F("delete sensor from webserver"));
+
+			uint16_t sensorId = request->pathArg(0).toInt();
+			deleteSensor(sensorId);
+			saveSensors();
+
+			request->send(200, "application/ld+json; charset=utf-8", "{}"); });
 }
 
 void setupSettingsGet()
@@ -292,8 +270,7 @@ void setupSettingsFactoryReset()
 		"/api/settings/reset", HTTP_GET, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
 			settingsFactoryReset();
 
-			request->send(200, "application/ld+json; charset=utf-8", "{}");
-		});
+			request->send(200, "application/ld+json; charset=utf-8", "{}"); });
 }
 
 void setupEpdScan()

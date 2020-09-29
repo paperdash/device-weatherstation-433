@@ -8,8 +8,8 @@ const MY_ICONS = {
     // system icons
     //complete: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/check/baseline.svg')},
     //cancel: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/cancel/baseline.svg')},
-    //close: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/close/baseline.svg')},
-    //delete: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/delete/baseline.svg')},
+    close: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/close/baseline.svg')},
+    delete: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/delete/baseline.svg')},
     //clear: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/clear/baseline.svg')},
     //success: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/check_circle/baseline.svg')},
     //info: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/info/baseline.svg')},

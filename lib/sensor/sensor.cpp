@@ -120,9 +120,6 @@ void loadSensors()
 		strlcpy(sensorList[i].protocol,
 				doc[i]["protocol"] | "",
 				sizeof(sensorList[i].protocol));
-		strlcpy(sensorList[i].label,
-				doc[i]["label"] | "",
-				sizeof(sensorList[i].label));
 	}
 
 	file.close();
@@ -240,6 +237,20 @@ void updateSensor(uint16_t id, structSensorData sensor)
 	if (strlen(sensor.label) > 0)
 	{
 		strlcpy(sensorList[index].label, sensor.label, sizeof(sensorList[index].label));
+	}
+}
+
+void deleteSensor(uint16_t id)
+{
+	// search sensor
+	for (uint8_t s = 0; s < SENSOR_COUNT; s++)
+	{
+		if (sensorList[s].id == id)
+		{
+			sensorList[s].id = 0;
+			memset(sensorList[s].label, 0, sizeof sensorList[s].label);
+			return;
+		}
 	}
 }
 

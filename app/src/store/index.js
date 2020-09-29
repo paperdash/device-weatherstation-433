@@ -24,11 +24,19 @@ const store = new Vuex.Store({
 				state.sensors[i].humidity = payload.humidity
 				state.sensors[i].last_update = payload.last_update
 
+				if (payload.label) {
+					state.sensors[i].label = payload.label
+				}
+
 				// update state
 				state.sensors = [
 					...state.sensors
 				]
 			}
+		},
+		deleteSensor(state, id) {
+			// const i = state.sensors.findIndex(item => item.id === id)
+			state.sensors = state.sensors.filter(item => item.id !== id)
 		},
 		setPushUpdate(state, enable) {
 			state.pushUpdate = enable
@@ -57,7 +65,16 @@ const store = new Vuex.Store({
 				await axios.put('/api/sensor/' + id, {
 					label: sensor.label
 				})
-				commit('updateSensor', id, sensor);
+				commit('updateSensor', sensor);
+			} catch (error) {
+				console.warn(error)
+			}
+		},
+		async deleteSensor({ commit }, id) {
+			try {
+				await axios.delete('/api/sensor/' + id)
+				commit('deleteSensor', id)
+				commit('notification', "sensor #" + id + " deleted")
 			} catch (error) {
 				console.warn(error)
 			}
@@ -152,7 +169,7 @@ const store = new Vuex.Store({
 });
 
 
-// TODO sensor push data
+// sensor push data
 const connection = new WebSocket("ws://" + window.location.host + "/ws")
 connection.onmessage = (message) => {
 	let log = JSON.parse(message.data)

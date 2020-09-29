@@ -106,7 +106,7 @@
               </div>
             </template>
 
-            <v-subheader>Inactive</v-subheader>
+            <v-subheader v-if="outdatedList.length > 0">Inactive</v-subheader>
 
             <template
               v-for="(sensor, i) in outdatedList"
@@ -137,6 +137,12 @@
                       | {{ sensor.id }}, {{ sensor.protocol }}
                     </v-list-item-subtitle>
                   </v-list-item-content>
+
+                  <v-list-item-action>
+                    <v-btn icon @click="deleteSensor(sensor.id)">
+                      <v-icon>$delete</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
                 </v-list-item>
               </div>
             </template>
@@ -186,7 +192,7 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
+  import { mapState, mapActions } from 'vuex'
   import SetupSensor from "@/components/SetupSensor";
 
   export default {
@@ -195,8 +201,6 @@
     },
     data: () => ({
       tabs: null,
-      // history: [],
-
       editSensorDialog: false,
       editSensor: null
     }),
@@ -211,7 +215,7 @@
         return this.sensors.slice(0).sort((a, b) => (a.last_update > b.last_update) ? -1 : 1)
       },
       activeList () {
-        return this.recentlyActivity.filter(sensor => !this.isOutdated(sensor.last_update))
+        return this.recentlyActivity.filter(sensor => !this.isOutdated(sensor.last_update)).sort((a, b) => (a.id < b.id) ? -1 : 1)
       },
       outdatedList () {
         return this.recentlyActivity.filter(sensor => this.isOutdated(sensor.last_update))
@@ -227,6 +231,8 @@
         this.editSensor = sensor
         this.dialog = true
       },
+
+      ...mapActions(['deleteSensor']),
 
       onCommit() {
 

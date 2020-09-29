@@ -1,5 +1,3 @@
-<script src="../../node_modules/vue/dist/vue.runtime.esm.js"></script>
-<script src="../../node_modules/vue/dist/vue.runtime.js"></script>
 <template>
   <v-card :loading="loading">
     <v-toolbar
@@ -7,12 +5,12 @@
       dark
       flat
     >
-      <v-toolbar-title>i8n:Edit sensor</v-toolbar-title>
+      <v-toolbar-title>Edit sensor</v-toolbar-title>
 
       <div class="flex-grow-1"></div>
 
       <v-btn icon @click="btnCancel">
-        <v-icon>mdi-close</v-icon>
+        <v-icon>$close</v-icon>
       </v-btn>
 
       <template v-slot:extension>
@@ -23,8 +21,8 @@
           slider-color="black"
           background-color="transparent"
         >
-          <v-tab href="#config">i8n:config</v-tab>
-          <v-tab href="#replace">i8n:replace</v-tab>
+          <v-tab href="#config">Add</v-tab>
+          <v-tab href="#replace">Replace</v-tab>
         </v-tabs>
       </template>
     </v-toolbar>
@@ -47,6 +45,8 @@
               label="i8n:Available sensors"
               :items="sensors"
               v-model="replaceSensor"
+              return-object
+              item-value="id"
               dense
             >
               <template v-slot:item="data">
@@ -77,7 +77,7 @@
           @click="btnCancel"
           dense
         >
-          Abbrechen
+          Cancel
         </v-btn>
 
         <v-btn
@@ -86,7 +86,7 @@
           @click="btnAccept"
           dense
         >
-          Speichern
+          Save
         </v-btn>
       </v-card-actions>
     </template>
@@ -132,6 +132,7 @@ export default {
       // clone for editing
       this.sensorEdit = {...sensor}
 
+      this.loading = false
       this.action = 'action'
       this.replaceSensor = null
     },
@@ -143,11 +144,21 @@ export default {
     btnAccept: function () {
       this.loading = true
 
-      this.$store.dispatch('updateSensor', [this.sensorEdit.id, this.sensorEdit]).then(() => {
-        this.$store.commit('notification', "saved")
-        this.loading = false
+      if (this.action === 'replace') {
+        // use settings from old existing
+        this.sensorEdit.label = this.replaceSensor.label
+      }
+
+      this.$store.dispatch('putSensor', [this.sensorEdit.id, this.sensorEdit]).then(() => {
+
+        if (this.action === 'replace') {
+          this.$store.commit('deleteSensor', this.replaceSensor.id)
+        }
 
         this.$emit('done')
+        this.loading = false
+
+        this.$store.commit('notification', "saved")
       })
     }
   }
