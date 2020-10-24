@@ -77,7 +77,7 @@ void loadSensors()
 	// read user settings
 	for (size_t i = 0; i < SENSOR_COUNT; i++)
 	{
-		String key = "sensor." + i;
+		String key = "sensor." + String(i);
 
 		sensorList[i].id = NVS.getInt(key + ".id");
 
@@ -149,6 +149,7 @@ void saveSensors()
 	StaticJsonDocument<capacity> doc;
 
 	// Copy values
+	String key;
 	for (size_t i = 0; i < SENSOR_COUNT; i++)
 	{
 		doc[i]["id"] = sensorList[i].id;
@@ -159,7 +160,8 @@ void saveSensors()
 		doc[i]["label"] = sensorList[i].label;
 
 		// persist user settings
-		String key = "sensor." + i;
+		String key = "sensor." + String(i);
+
 		NVS.setInt(key + ".id", sensorList[i].id);
 		NVS.setString(key + ".label", sensorList[i].label);
 	}
@@ -176,7 +178,7 @@ void saveSensors()
 	unsavedSinceReset();
 }
 
-void updateSensor(uint16_t id, structSensorData sensor)
+bool updateSensor(uint16_t id, structSensorData sensor)
 {
 	uint8_t index = 255;
 
@@ -211,7 +213,7 @@ void updateSensor(uint16_t id, structSensorData sensor)
 	if (index == 255)
 	{
 		Serial.println(F("no free slot found !!"));
-		return;
+		return false;
 	}
 
 	// update sensor
@@ -238,6 +240,8 @@ void updateSensor(uint16_t id, structSensorData sensor)
 	{
 		strlcpy(sensorList[index].label, sensor.label, sizeof(sensorList[index].label));
 	}
+
+	return true;
 }
 
 void deleteSensor(uint16_t id)
@@ -256,6 +260,7 @@ void deleteSensor(uint16_t id)
 
 void rfCallback(const String &protocol, const String &message, int status, size_t repeats, const String &deviceID)
 {
+	Serial.println(message);
 	// check if message is valid and process it
 	if (status == VALID)
 	{

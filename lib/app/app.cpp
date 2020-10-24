@@ -81,6 +81,8 @@ void setupApp()
 		doc["wifi"]["dns"] = WiFi.dnsIP().toString();
 		doc["wifi"]["gateway"] = WiFi.gatewayIP().toString();
 
+		doc["device"]["hostname"] = WiFi.getHostname();
+
 		/*
 		doc["device"]["id"] = DeviceId;
 		doc["device"]["heap"] = ESP.getFreeHeap();
@@ -199,8 +201,11 @@ void setupSensorPut()
 							sizeof(sensor.label));
 				}
 
-				updateSensor(sensorId, sensor);
-				saveSensors();
+				if (!updateSensor(sensorId, sensor)) {
+					Serial.println("update failed");
+				} else {
+					saveSensors();
+				}
 
 				request->send(200, "application/ld+json; charset=utf-8", "{}");
 			} });

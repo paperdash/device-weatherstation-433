@@ -24,7 +24,7 @@ typedef struct
 
 structSensorData *getSensorList();
 
-void updateSensor(uint16_t id, structSensorData sensor);
+bool updateSensor(uint16_t id, structSensorData sensor);
 void deleteSensor(uint16_t id);
 
 void saveSensors();
