@@ -24,6 +24,7 @@
     "countries-and-timezones": "^2.2.0",
     "countries-list": "^2.5.4",
     "eslint": "^6.7.2",
+    "eslint-config-vuetify": "^0.6.1",
     "eslint-plugin-vue": "^6.1.2",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
