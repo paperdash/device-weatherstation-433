@@ -94,6 +94,9 @@ void setupApp()
 		doc["device"]["fs"]["free"] = SPIFFS.totalBytes() - SPIFFS.usedBytes();
 		doc["device"]["time"] = time(NULL);
 
+		doc["firmware"]["created"] = FW_CREATED;
+		doc["firmware"]["rev"] = FW_GIT_REV;
+
 		serializeJson(doc, *response);
 		request->send(response);
 	});
