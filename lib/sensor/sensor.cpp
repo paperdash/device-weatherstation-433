@@ -27,6 +27,7 @@ DynamicJsonDocument doc(capacity);
 const char *jsonStore = "/sensors.json";
 unsigned long lastSavedTimestampMS = 0;
 int32_t autoSaveEverySeconds = 300 * 1000; // 5 MIN
+bool sensorMonitorMode = false;
 
 // private methods
 void rfCallback(const String &protocol, const String &message, int status, size_t repeats, const String &deviceID);
@@ -260,10 +261,23 @@ void deleteSensor(uint16_t id)
 
 void rfCallback(const String &protocol, const String &message, int status, size_t repeats, const String &deviceID)
 {
-	Serial.println(message);
 	// check if message is valid and process it
 	if (status == VALID)
 	{
+		if (sensorMonitorMode)
+		{
+			String json = "{";
+
+			json += "\"kind\":\"monitor\"";
+			json += ",\"protocol\":\"" + protocol + "\"";
+			json += ",\"deviceID\":" + String(deviceID);
+			json += ",\"message\":" + message;
+
+			json += "}";
+
+			sendDataWs(json);
+		}
+
 		// allow only defined protocols
 		for (int i = 0; i < filterProtocolCount; i++)
 		{
@@ -298,6 +312,7 @@ void rfCallback(const String &protocol, const String &message, int status, size_
 
 				updateSensor(deviceID.toInt(), sensor);
 
+				doc["kind"] = F("sensor");
 				doc["id"] = sensor.id;
 				doc["temperature"] = sensor.temperature;
 				doc["humidity"] = sensor.humidity;
@@ -317,4 +332,9 @@ bool isAutoSavedRequired()
 void unsavedSinceReset()
 {
 	lastSavedTimestampMS = millis();
+}
+
+void sensorSetMonitorMode(bool enable)
+{
+	sensorMonitorMode = enable;
 }

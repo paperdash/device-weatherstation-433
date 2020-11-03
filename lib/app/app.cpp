@@ -20,12 +20,14 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 void setupSettingsGet();
 void setupSettingsPost();
 void setupSettingsFactoryReset();
+void setupDevice();
 void setupSensorsGet();
 void setupSensorPut();
 void setupSensorDelete();
 void setupEpdScan();
 void setupEpdConnect();
 void setupEpdUpdate();
+void setupSensorMonitorMode();
 void setupWifiScan();
 void setupWifiConnect();
 void setupApiUpdate();
@@ -52,12 +54,14 @@ void setupApp()
 	setupSettingsGet();
 	setupSettingsPost();
 	setupSettingsFactoryReset();
+	setupDevice();
 	setupSensorsGet();
 	setupSensorPut();
 	setupSensorDelete();
 	setupEpdScan();
 	setupEpdConnect();
 	setupEpdUpdate();
+	setupSensorMonitorMode();
 	setupWifiScan();
 	setupWifiConnect();
 	setupApiUpdate();
@@ -360,6 +364,31 @@ void setupEpdUpdate()
 	});
 }
 
+void setupSensorMonitorMode()
+{
+	server.on("/api/sensor/monitor", HTTP_GET, [](AsyncWebServerRequest *request) {
+		if (request->hasParam("on"))
+		{
+			sensorSetMonitorMode(true);
+		}
+		else if (request->hasParam("off"))
+		{
+			sensorSetMonitorMode(false);
+		}
+
+		request->send(200, "application/json", "{}");
+	});
+}
+
+void setupDevice()
+{
+	server.on("/api/device/restart", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(200, "application/json", "{}");
+
+		ESP.restart();
+	});
+}
+
 /**
  * scan for wifi
  */
@@ -614,4 +643,9 @@ void sendDataWs(DynamicJsonDocument doc)
 		serializeJson(doc, (char *)buffer->get(), len + 1);
 		ws.textAll(buffer);
 	}
+}
+
+void sendDataWs(String data)
+{
+	ws.textAll(data);
 }

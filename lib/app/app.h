@@ -8,5 +8,6 @@ void setupApp();
 void loopApp();
 
 void sendDataWs(DynamicJsonDocument doc);
+void sendDataWs(String data);
 
 #endif
