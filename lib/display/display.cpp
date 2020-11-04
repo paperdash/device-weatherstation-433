@@ -15,7 +15,7 @@ int32_t timer;
 
 int32_t displayGetRemainingTimeMs();
 void exportJPG(GFXcanvas1 *_canvas, const char *fileName);
-byte postFile(const char *fileName, const char *servername, uint16_t port);
+uint16_t postFile(const char *fileName, const char *servername, uint16_t port);
 
 void setupDisplay()
 {
@@ -100,7 +100,7 @@ void exportJPG(GFXcanvas1 *_canvas, const char *fileName)
 	tmpFileCache.close();
 }
 
-byte postFile(const char *fileName, const char *servername, uint16_t port)
+uint16_t postFile(const char *fileName, const char *servername, uint16_t port)
 {
 	// connect
 	client.setTimeout(2);
@@ -152,8 +152,8 @@ byte postFile(const char *fileName, const char *servername, uint16_t port)
 		}
 
 		// read response
-		byte respCode = client.peek();
-		byte thisByte;
+		uint16_t respCode = client.peek();
+		uint16_t thisByte;
 		while (client.available())
 		{
 			thisByte = client.read();
