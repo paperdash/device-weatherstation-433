@@ -40,7 +40,6 @@ void loopDisplay()
 	if (displayGetRemainingTimeMs() <= 0)
 	{
 		lastSwitch = millis();
-		Serial.println("update display...");
 		updateDisplay();
 	}
 }
@@ -104,6 +103,7 @@ void exportJPG(GFXcanvas1 *_canvas, const char *fileName)
 byte postFile(const char *fileName, const char *servername, uint16_t port)
 {
 	// connect
+	client.setTimeout(2);
 	if (client.connect(servername, port))
 	{
 		File fp = SPIFFS.open(fileName, FILE_READ);
@@ -144,24 +144,26 @@ byte postFile(const char *fileName, const char *servername, uint16_t port)
 
 		client.println("--------------------------5c8e39ca1848977d--");
 		fp.close();
+
+		// wait for response
+		while (!client.available())
+		{
+			delay(1);
+		}
+
+		// read response
+		byte respCode = client.peek();
+		byte thisByte;
+		while (client.available())
+		{
+			thisByte = client.read();
+			Serial.write(thisByte);
+		}
+
+		client.stop();
+
+		return respCode;
 	}
 
-	// wait for response
-	while (!client.available())
-	{
-		delay(1);
-	}
-
-	// read response
-	byte respCode = client.peek();
-	byte thisByte;
-	while (client.available())
-	{
-		thisByte = client.read();
-		Serial.write(thisByte);
-	}
-
-	client.stop();
-
-	return respCode;
+	return 404;
 }
