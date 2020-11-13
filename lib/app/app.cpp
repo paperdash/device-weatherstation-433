@@ -20,7 +20,7 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
 void setupSettingsGet();
 void setupSettingsPost();
 void setupSettingsFactoryReset();
-void setupDevice();
+void setupApiDevice();
 void setupSensorsGet();
 void setupSensorPut();
 void setupSensorDelete();
@@ -54,7 +54,7 @@ void setupApp()
 	setupSettingsGet();
 	setupSettingsPost();
 	setupSettingsFactoryReset();
-	setupDevice();
+	setupApiDevice();
 	setupSensorsGet();
 	setupSensorPut();
 	setupSensorDelete();
@@ -380,7 +380,7 @@ void setupSensorMonitorMode()
 	});
 }
 
-void setupDevice()
+void setupApiDevice()
 {
 	server.on("/api/device/restart", HTTP_GET, [](AsyncWebServerRequest *request) {
 		request->send(200, "application/json", "{}");
@@ -395,6 +395,47 @@ void setupDevice()
 
 		response->addHeader("Content-Disposition", "inline; filename=capture.bmp");
 		request->send(response);
+	});
+
+	server.on("/api/device/scan", HTTP_GET, [](AsyncWebServerRequest *request) {
+		String json = "[";
+		Serial.printf("Browsing for service _%s._%s.local. ... ", "http", "tcp");
+		int n = MDNS.queryService("http", "tcp");
+		if (n == 0)
+		{
+			Serial.println("no services found");
+		}
+		else
+		{
+			Serial.print(n);
+			Serial.println(" service(s) found");
+
+			size_t cnt = 0;
+			for (size_t i = 0; i < n; ++i)
+			{
+				// checking for epd
+				if (MDNS.hasTxt(i, "paperdash"))
+				{
+					if (cnt)
+					{
+						json += ",";
+					}
+					cnt++;
+
+					json += "{";
+					json += "\"host\":\"" + MDNS.hostname(i) + "\"";
+					json += ",\"ip\":\"" + MDNS.IP(i).toString() + "\"";
+					json += ",\"port\":" + String(MDNS.port(i));
+					json += ",\"type\":\"" + String(MDNS.txt(i, 0)) + "\"";
+					json += "}";
+				}
+			}
+		}
+		Serial.println();
+
+		json += "]";
+		request->send(200, "application/json", json);
+		json = String();
 	});
 }
 
