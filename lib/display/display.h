@@ -7,4 +7,6 @@ void loopDisplay();
 bool updateDisplay();
 bool updateDisplay(const char *host);
 
+int displaySnapshotBMPStream(uint8_t *buffer, size_t maxLen, size_t index);
+
 #endif

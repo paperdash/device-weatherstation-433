@@ -387,6 +387,15 @@ void setupDevice()
 
 		ESP.restart();
 	});
+
+	server.on("/api/device/screen", HTTP_GET, [](AsyncWebServerRequest *request) {
+		AsyncWebServerResponse *response = request->beginChunkedResponse("image/bmp", [](uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
+			return displaySnapshotBMPStream(buffer, maxLen, index);
+		});
+
+		response->addHeader("Content-Disposition", "inline; filename=capture.bmp");
+		request->send(response);
+	});
 }
 
 /**
