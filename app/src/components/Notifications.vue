@@ -21,32 +21,32 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+  import { mapState } from 'vuex'
 
-export default {
-  data: () => ({
-    snackbar: false,
-    timeoutHandler: null
-  }),
-  computed: {
-    ...mapState(['notifications'])
-  },
-  watch: {
-    notifications () {
-      this.snackbar = true
-      this.resetTimeout()
-    }
-  },
-  methods: {
-    resetTimeout () {
-      clearTimeout(this.timeoutHandler)
+  export default {
+    data: () => ({
+      snackbar: false,
+      timeoutHandler: null,
+    }),
+    computed: {
+      ...mapState(['notifications']),
+    },
+    watch: {
+      notifications () {
+        this.snackbar = true
+        this.resetTimeout()
+      },
+    },
+    methods: {
+      resetTimeout () {
+        clearTimeout(this.timeoutHandler)
 
-      this.timeoutHandler = setTimeout(() => {
-        this.snackbar = false
-      }, 3 * 1000)
-    }
+        this.timeoutHandler = setTimeout(() => {
+          this.snackbar = false
+        }, 3 * 1000)
+      },
+    },
   }
-}
 </script>
 
 <style scoped>

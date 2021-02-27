@@ -6,14 +6,14 @@ import vuetify from './plugins/vuetify'
 
 Vue.config.productionTip = false
 
-Vue.use(require('vue-moment'));
+Vue.use(require('vue-moment'))
 
 new Vue({
-	vuetify,
-	router,
-	store,
-	data: {
-		stats: null
-	},
-	render: h => h(App)
+  vuetify,
+  router,
+  store,
+  data: {
+    stats: null,
+  },
+  render: h => h(App),
 }).$mount('#app')
