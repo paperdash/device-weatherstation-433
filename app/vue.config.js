@@ -11,7 +11,7 @@ module.exports = {
   devServer: {
     proxy: {
       '^/': {
-        target: 'http://paperdash-weatherstation:80',
+        target: 'http://paperdash-weatherstation.local:80',
         ws: true,
         changeOrigin: true,
       },
