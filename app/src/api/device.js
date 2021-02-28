@@ -160,12 +160,34 @@ export default {
 
   /**
    * scan for display in range
-   * @param {*} cb
    */
-  displayScan (cb) {
-    return axios
-      .get('/api/epd/scan')
-      .then(response => cb(response.data))
+  async displayScan () {
+    const response = await axios.get('/api/device/scan')
+    const found = response.data.filter(item => item.type === 'epd')
+
+    // load additional data
+    const list = []
+    found.forEach(device => {
+      list.push(axios.get('http://' + device.ip + ':/stats'))
+    })
+
+    const result = []
+    await axios.all(list)
+      .then(
+        axios.spread((...responses) => {
+          responses.forEach(item => {
+            console.log(item)
+
+            result.push({
+              ip: item.data.wifi.ip,
+              hostname: item.data.device.hostname,
+              name: item.data.device.name,
+            })
+          })
+        }),
+      )
+
+    return result
   },
 
   /**
