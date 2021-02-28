@@ -152,7 +152,10 @@
       wifiPasswordModal: false,
     }),
     computed: {
-      ...mapState(['stats', 'settings']),
+      ...mapState({
+        stats: state => state.app.stats,
+        settings: state => state.app.settings,
+      }),
     },
     created () {
       apiDevice.wifiScan(list => {

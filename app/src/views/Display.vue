@@ -1,14 +1,67 @@
 <template>
   <v-container fluid>
-    <v-snackbar
-      v-model="isSnackbar"
-      :timeout="3000"
-      color="success"
+    <v-card
+      flat
+      rounded="lg"
     >
-      i8n:saved
-    </v-snackbar>
+      <v-card-title class="display-2 mb-12 justify-center text-center">
+        Connect a display
+      </v-card-title>
+
+      <v-item-group v-model="selected">
+        <v-row>
+          <v-col
+            v-for="(display, i) in displayAvailable"
+            :key="i"
+            sm="6"
+          >
+            <v-item
+              #default="{active, toggle}"
+              :value="display.ip"
+            >
+              <div>
+                <device-simulator
+                  class="mx-10 mb-3"
+                  frame="black"
+                  front="black"
+                />
+                <v-card
+                  outlined
+                  :class="['group', {active: active}]"
+                  @click="toggle"
+                >
+                  <v-card-title>
+                    {{ display.name || display.hostname }}
+                  </v-card-title>
+                  <v-card-text>
+                    {{ display.ip }}
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer />
+                    <v-btn
+                      :disabled="display.isTesting"
+                      text
+                      color="orange lighten-2"
+                      @click="onDisplayTest(display)"
+                    >
+                      <span v-show="!display.isTesting">Test</span>
+
+                      <v-progress-circular
+                        v-show="display.isTesting"
+                        :value="display.updateProgress"
+                      />
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </div>
+            </v-item>
+          </v-col>
+        </v-row>
+      </v-item-group>
+    </v-card>
 
     <v-row
+      v-if="0"
       no-gutters
       justify="center"
     >
@@ -107,30 +160,49 @@
 
 <script>
   import apiDevice from '@/api/device'
+  import { mapState } from 'vuex'
+  import DeviceSimulator from '@/components/DeviceSimulator'
 
   export default {
     name: 'Display',
+    components: { DeviceSimulator },
     data: () => ({
       isLoading: true,
-      isSnackbar: false,
-      isTesting: false,
-      updateProgress: 0,
-
-      settings: null,
+      selected: null,
       connectingHost: '',
 
-      displayAvailable: [],
+      displayAvailable: [
+        { ip: '192.168.178.27', host: 'my_hostname', name: 'esp lit', isTesting: false, updateProgress: 0 },
+        { ip: '192.168.178.88', host: 'my_hostname', name: 'timi', isTesting: false, updateProgress: 0 },
+      ],
     }),
+    computed: {
+      ...mapState({
+        stats: state => state.app.stats,
+        settings: state => state.app.settings,
+      }),
+    },
     created () {
-      apiDevice.getSettings(settings => {
-        this.settings = settings
+      // this.isLoading = true
 
-        apiDevice.displayScan(list => {
-          this.displayAvailable = list
+      /*
+      apiDevice.displayScan().then(list => {
+        this.displayAvailable = []
 
-          this.isLoading = false
+        list.forEach(device => {
+          this.displayAvailable.push({
+            ip: device.ip,
+            hostname: device.hostname,
+            name: device.name,
+
+            isTesting: false,
+            updateProgress: 0,
+          })
         })
+
+        this.isLoading = false
       })
+      */
     },
     methods: {
       onDisplayConnect (host) {
@@ -140,26 +212,39 @@
           this.connectingHost = ''
         })
       },
-      onDisplayTest () {
-        this.isTesting = true
-        this.updateProgress = 12.5
 
-        apiDevice.displayUpdate(() => {
-          const timer = window.setInterval(() => {
-            this.updateProgress += 12.5
-          }, 1000)
+      onDisplayTest (display) {
+        display.isTesting = true
+        display.updateProgress = 12.5
 
-          window.setTimeout(() => {
-            this.isTesting = false
+        const timer = window.setInterval(() => {
+          display.updateProgress += 12.5
+        }, 1000)
 
-            timer.clear()
-          }, 8000)
-        })
+        window.setTimeout(() => {
+          display.isTesting = false
+
+          window.clearInterval(timer)
+        }, 8000)
       },
     },
   }
 </script>
 
 <style scoped>
-
+.v-card.group {
+  padding: 1px;
+}
+.v-card.group.active {
+  padding: 0;
+  border-color: #1867c0;
+  border-width: 2px;
+}
+.v-card.group.active:focus {
+  border-color: #1867c0;
+  border-width: 2px;
+}
+.v-card.group.active:focus:before {
+  opacity: 0;
+}
 </style>

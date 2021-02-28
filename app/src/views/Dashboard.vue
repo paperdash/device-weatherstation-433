@@ -263,10 +263,13 @@
       outdatedList () {
         return this.recentlyActivity.filter(sensor => this.isOutdated(sensor.last_update))
       },
-      ...mapState(['sensors', 'sensorHistory']),
+      ...mapState({
+        sensors: state => state.sensors.list,
+        sensorHistory: state => state.sensors.history,
+      }),
     },
     created () {
-      this.$store.dispatch('getSensors')
+      this.$store.dispatch('sensors/load')
     },
     methods: {
       isOutdated (time) {
@@ -278,7 +281,7 @@
         this.dialog = true
       },
 
-      ...mapActions(['deleteSensor']),
+      ...mapActions(['sensors/delete']),
 
       onCommit () {
 
