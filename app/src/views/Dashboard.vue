@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="pb-5">
     <v-tabs
       v-model="tabs"
       background-color="orange darken-2"
@@ -7,6 +7,7 @@
       slider-color="black"
       dark
       icons-and-text
+      class="rounded-t-lg"
     >
       <v-tab>
         Favorite
@@ -23,62 +24,46 @@
       </v-tab>
       <v-tab>
         Live
-        <v-icon>$history</v-icon>
+        <v-icon>$mdiPulse</v-icon>
       </v-tab>
     </v-tabs>
 
-    <v-tabs-items v-model="tabs">
-      <v-tab-item>
-        <v-row class="pt-5">
+    <v-tabs-items
+      v-model="tabs"
+    >
+      <v-tab-item class="px-5">
+        <v-row class="d-flex mt-2">
           <v-col
             v-for="(sensor, i) in favoriteList"
             :key="i + 1000"
-            cols="12"
-            sm="6"
-            md="4"
-            lg="3"
           >
             <v-card
-              outlined
-              class="text-center mt-16 mb-6 mx-6"
+              color="grey lighten-4"
+              flat
+              elevation="0"
+              min-width="160"
+              rounded="xl"
             >
-              <v-card-text>
-                <v-responsive
-                  class="mx-auto rounded-circle elevation-10 white"
-                  style="position: absolute; top: -65px; left: calc(50% - 50px);"
-                  height="100"
-                  width="100"
+              <v-card-text class="pb-0">
+                <v-avatar
+                  color="grey darken-1"
+                  size="70"
+                  class="subtitle-1 white--text"
                 >
-                  <transition
-                    name="slide-fade"
-                    mode="out-in"
-                  >
-                    <p
-                      :key="sensor.temperature"
-                      class="text-no-wrap text-h4 black--text mt-6 mb-0"
-                    >
-                      {{ sensor.temperature }}°
-                    </p>
-                  </transition>
-
-                  <v-divider />
-                  <p class="text-no-wrap text-subtitle-1 grey lighten-5 pb-5">
-                    {{ sensor.humidity }}%
-                  </p>
-                </v-responsive>
+                  {{ sensor.temperature }}°C
+                </v-avatar>
+                <v-avatar
+                  color="grey darken-1"
+                  size="48"
+                  class="ml-5 white--text"
+                >
+                  {{ sensor.humidity }}%
+                </v-avatar>
               </v-card-text>
 
-              <v-card-text class="text-h4">
+              <v-card-title>
                 {{ sensor.label }}
-              </v-card-text>
-
-              <v-divider />
-
-              <v-card-actions class="grey lighten-5 pa-3">
-                <small
-                  :title="sensor.last_update | moment('LLLL')"
-                >{{ sensor.last_update | moment("from") }}</small>
-              </v-card-actions>
+              </v-card-title>
             </v-card>
           </v-col>
         </v-row>
@@ -202,21 +187,29 @@
       </v-tab-item>
       <v-tab-item>
         <v-card flat>
-          <v-simple-table>
+          <v-simple-table
+            dense
+          >
             <template v-slot:default>
               <thead>
                 <tr>
                   <th
                     class="text-left"
-                    width="150"
+                    style="width: 100px"
                   >
-                    Time
+                    Received
                   </th>
-                  <th
-                    class="text-left"
-                    width="50"
-                  />
                   <th class="text-left" />
+                  <th class="text-right">
+                    <v-switch
+                      v-model="monitorMode"
+                      :loading="monitorModeProcessing"
+                      :disabled="monitorModeProcessing"
+                      dense
+                      label="Monitor mode"
+                      hide-details
+                    />
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -224,9 +217,16 @@
                   v-for="(sensor, i) in sensorHistory.slice().reverse()"
                   :key="i + 3000"
                 >
-                  <td>{{ sensor.last_update | moment("LTS") }}</td>
-                  <td>{{ sensor.temperature }}°</td>
-                  <td>{{ sensor.humidity }}%</td>
+                  <td>{{ sensor.last_update.toLocaleTimeString() }}</td>
+                  <template v-if="sensor.kind === 'monitor'">
+                    <td colspan="2">
+                      {{ sensor }}
+                    </td>
+                  </template>
+                  <template v-else>
+                    <td>{{ sensor.temperature }}°</td>
+                    <td>{{ sensor.humidity }}%</td>
+                  </template>
                 </tr>
               </tbody>
             </template>
@@ -249,6 +249,8 @@
       tabs: null,
       editSensorDialog: false,
       editSensor: null,
+      // monitorMode: false,
+      monitorModeProcessing: false,
     }),
     computed: {
       favoriteList () {
@@ -263,10 +265,26 @@
       outdatedList () {
         return this.recentlyActivity.filter(sensor => this.isOutdated(sensor.last_update))
       },
+      monitorMode: {
+        get () {
+          return this.$store.state.sensors.monitorMode
+        },
+        set () {
+          this.monitorModeProcessing = true
+          this.$store.dispatch('sensors/toggleMonitorMode').then(() => {
+            this.monitorModeProcessing = false
+          })
+        },
+      },
       ...mapState({
         sensors: state => state.sensors.list,
         sensorHistory: state => state.sensors.history,
       }),
+    },
+    watch: {
+      monitorMode (state) {
+        console.log(state)
+      },
     },
     created () {
       this.$store.dispatch('sensors/load')
