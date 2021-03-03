@@ -4,6 +4,7 @@ const state = () => ({
   list: [],
   pushUpdate: false,
   history: [],
+  monitorMode: false,
 })
 
 const mutations = {
@@ -34,6 +35,9 @@ const mutations = {
   },
   setPushUpdate (state, enable) {
     state.pushUpdate = enable
+  },
+  setMonitorMode (state, enable) {
+    state.monitorMode = enable
   },
   addHistory (state, payload) {
     state.history.push(payload)
@@ -67,6 +71,18 @@ const actions = {
       await axios.delete('/api/sensor/' + id)
       commit('deleteSensor', id)
       commit('notification', 'sensor #' + id + ' deleted')
+    } catch (error) {
+      console.warn(error)
+    }
+  },
+  async toggleMonitorMode ({ commit, state }) {
+    try {
+      const toggle = !state.monitorMode
+      const mode = toggle ? 'on' : 'off'
+
+      await axios.get('/api/sensor/monitor?' + mode)
+      commit('setMonitorMode', toggle)
+      commit('notification', 'monitor mode switched ' + mode, { root: true })
     } catch (error) {
       console.warn(error)
     }
