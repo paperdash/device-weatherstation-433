@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify/lib'
 
-import { mdiHomeThermometerOutline, mdiSd } from '@mdi/js'
+import { mdiHomeThermometerOutline, mdiSd, mdiPulse } from '@mdi/js'
 
 // enable system icons
 // @see https://vuetifyjs.com/en/customization/icons#component-icons
@@ -52,10 +52,11 @@ const MY_ICONS = {
   settings: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/settings/baseline.svg') },
   // dashboard: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/dashboard/baseline.svg') },
   present_to_all: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/present_to_all/baseline.svg') },
-  history: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/history/baseline.svg') },
+  // history: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/history/baseline.svg') },
   support: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/support/baseline.svg') },
   mdiHomeThermometerOutline,
   storage: mdiSd,
+  mdiPulse,
 
   // wifi
   wifi: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/wifi/baseline.svg') },
