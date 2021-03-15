@@ -79,7 +79,7 @@ void initClientMode(const char *ssid, const char *password)
 
 	// Add service to MDNS-SD
 	MDNS.addService("http", "tcp", 80);
-	MDNS.addServiceTxt("http", "tcp", "paperdash", "retro-weather-station");
+	MDNS.addServiceTxt("http", "tcp", "paperdash", "weather-station-retrofit");
 
 	Serial.print("  connected in: ");
 	Serial.println(millis() - startMills);
