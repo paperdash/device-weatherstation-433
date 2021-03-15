@@ -90,6 +90,12 @@ const actions = {
 }
 
 const getters = {
+  isOffline: () => (sensor) => {
+    const update = new Date(sensor.last_update * 1000)
+    const outdated = Date.now() - (10 * 60 * 1000)
+
+    return update < outdated
+  },
 }
 
 export default {
