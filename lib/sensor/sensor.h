@@ -30,5 +30,6 @@ void deleteSensor(uint16_t id);
 void saveSensors();
 
 void sensorSetMonitorMode(bool enable);
+bool isSensorMonitorMode();
 
 #endif

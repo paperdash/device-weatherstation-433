@@ -338,3 +338,8 @@ void sensorSetMonitorMode(bool enable)
 {
 	sensorMonitorMode = enable;
 }
+
+bool isSensorMonitorMode()
+{
+	return sensorMonitorMode;
+}
