@@ -2,10 +2,9 @@
   <div class="pb-5">
     <v-tabs
       v-model="tabs"
-      background-color="orange darken-2"
       centered
-      slider-color="black"
-      dark
+      color="orange"
+      active-class="white"
       icons-and-text
       class="rounded-t-lg"
     >
@@ -16,7 +15,7 @@
       <v-tab>
         Discovered
         <svg
-          fill="white"
+          fill="black"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1000 1000"
           height="24"
@@ -54,7 +53,7 @@
       DiscoveredSensors,
     },
     data: () => ({
-      tabs: null,
+      tabs: 0,
     }),
     created () {
       this.$store.dispatch('sensors/load')
