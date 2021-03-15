@@ -6,6 +6,7 @@
 #include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
 #include <ESPmDNS.h>
+#include "device.h"
 #include "app.h"
 #include "settings.h"
 #include "sensor.h"
@@ -15,33 +16,67 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
 
+struct AppConfig
+{
+	char buildRev[40 + 1];
+	uint32_t buildTime;
+};
+
+const char *jsonAppVersion = "/dist/version.json";
+AppConfig appConfig;
+
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
-void setupSettingsGet();
-void setupSettingsPost();
-void setupSettingsFactoryReset();
+void setupApiSettings();
 void setupApiDevice();
-void setupSensorsGet();
-void setupSensorPut();
-void setupSensorDelete();
-void setupEpdScan();
-void setupEpdConnect();
-void setupEpdUpdate();
-void setupSensorMonitorMode();
-void setupWifiScan();
-void setupWifiConnect();
+void setupApiSensor();
+void setupApiDisplay();
+void setupApiWifi();
 void setupApiUpdate();
 void setupOTA();
 
 bool shouldReboot = false;
 bool triggerDisplayUpdate = false;
 
+void loadAppVersion()
+{
+	File file = SPIFFS.open(jsonAppVersion);
+	if (!file)
+	{
+		Serial.print(F("Failed to open file: "));
+		Serial.println(jsonAppVersion);
+
+		return;
+	}
+
+	// Allocate a temporary JsonDocument
+	const size_t capacity = JSON_OBJECT_SIZE(2) + 70;
+	StaticJsonDocument<capacity> doc;
+
+	// Deserialize the JSON document
+	DeserializationError error = deserializeJson(doc, file);
+	if (error)
+	{
+		Serial.println(F("Failed to version file:"));
+		Serial.println(error.c_str());
+
+		return;
+	}
+
+	// get data
+	appConfig.buildTime = doc["buildTime"];
+	strlcpy(appConfig.buildRev,
+			doc["rev"],
+			sizeof(appConfig.buildRev));
+
+	file.close();
+}
+
 void setupApp()
 {
 	Serial.println("setup configure");
 
-	// @see https://github.com/me-no-dev/ESPAsyncWebServer
-	// @see https://arduinojson.org/v6/assistant/
+	loadAppVersion();
 
 	// serve static files
 	server
@@ -51,30 +86,29 @@ void setupApp()
 		;
 	server.serveStatic("/fs/", SPIFFS, "/");
 
-	setupSettingsGet();
-	setupSettingsPost();
-	setupSettingsFactoryReset();
+	setupApiSettings();
 	setupApiDevice();
-	setupSensorsGet();
-	setupSensorPut();
-	setupSensorDelete();
-	setupEpdScan();
-	setupEpdConnect();
-	setupEpdUpdate();
-	setupSensorMonitorMode();
-	setupWifiScan();
-	setupWifiConnect();
+	setupApiSensor();
+	setupApiDisplay();
 	setupApiUpdate();
 	setupOTA();
 
 	server.onNotFound([](AsyncWebServerRequest *request) {
-		request->send(404);
+		Serial.printf("not found: http://%s%s\n", request->host().c_str(), request->url().c_str());
+
+		if (ON_STA_FILTER(request))
+		{
+			request->send(404);
+		}
+		else
+		{
+			request->send(SPIFFS, "/dist/index.html");
+		}
 	});
 
-	// TODO response
 	server.on("/stats", HTTP_GET, [](AsyncWebServerRequest *request) {
 		AsyncResponseStream *response = request->beginResponseStream("application/json");
-		DynamicJsonDocument doc(668); // https://arduinojson.org/v6/assistant/
+		DynamicJsonDocument doc(768); // https://arduinojson.org/v6/assistant/
 
 		doc["wifi"]["mac"] = WiFi.macAddress();
 		doc["wifi"]["ssid"] = WiFi.SSID();
@@ -85,21 +119,27 @@ void setupApp()
 		doc["wifi"]["dns"] = WiFi.dnsIP().toString();
 		doc["wifi"]["gateway"] = WiFi.gatewayIP().toString();
 
-		doc["device"]["hostname"] = WiFi.getHostname();
-
-		/*
 		doc["device"]["id"] = DeviceId;
-		doc["device"]["heap"] = ESP.getFreeHeap();
+		doc["device"]["time"] = time(NULL);
+		//doc["device"]["name"] = NVS.getString("device.name");
+		//doc["device"]["theme"] = NVS.getString("device.theme");
+		doc["device"]["hostname"] = WiFi.getHostname();
+		doc["device"]["runtime"] = ceil(millis() / 1000);
 		doc["device"]["bootCycle"] = deviceGetBootCount();
-		*/
+		doc["device"]["configured"] = deviceIsConfigured();
 
 		doc["device"]["fs"]["total"] = SPIFFS.totalBytes();
 		doc["device"]["fs"]["used"] = SPIFFS.usedBytes();
 		doc["device"]["fs"]["free"] = SPIFFS.totalBytes() - SPIFFS.usedBytes();
-		doc["device"]["time"] = time(NULL);
+
+		doc["device"]["heap"]["total"] = ESP.getHeapSize();
+		doc["device"]["heap"]["free"] = ESP.getFreeHeap();
 
 		doc["firmware"]["created"] = FW_CREATED;
 		doc["firmware"]["rev"] = FW_GIT_REV;
+
+		doc["app"]["created"] = appConfig.buildTime;
+		doc["app"]["rev"] = appConfig.buildRev;
 
 		serializeJson(doc, *response);
 		request->send(response);
@@ -139,7 +179,7 @@ void loopApp()
 	ws.cleanupClients();
 }
 
-void setupSensorsGet()
+void setupApiSensor()
 {
 	server.on("/api/sensors", HTTP_GET, [](AsyncWebServerRequest *request) {
 		AsyncResponseStream *response = request->beginResponseStream("application/ld+json; charset=utf-8");
@@ -167,10 +207,7 @@ void setupSensorsGet()
 		serializeJson(root, *response);
 		request->send(response);
 	});
-}
 
-void setupSensorPut()
-{
 	server.on(
 		"^\\/api\\/sensor\\/([0-9]+)$", HTTP_PUT, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
 			Serial.println(F("update sensor from webserver"));
@@ -216,10 +253,7 @@ void setupSensorPut()
 
 				request->send(200, "application/ld+json; charset=utf-8", "{}");
 			} });
-}
 
-void setupSensorDelete()
-{
 	server.on(
 		"^\\/api\\/sensor\\/([0-9]+)$", HTTP_DELETE, [](AsyncWebServerRequest *request) {
 			Serial.println(F("delete sensor from webserver"));
@@ -229,9 +263,25 @@ void setupSensorDelete()
 			saveSensors();
 
 			request->send(200, "application/ld+json; charset=utf-8", "{}"); });
+
+	server.on("/api/sensor/monitor", HTTP_GET, [](AsyncWebServerRequest *request) {
+		if (request->hasParam("on"))
+		{
+			sensorSetMonitorMode(true);
+		}
+		else if (request->hasParam("off"))
+		{
+			sensorSetMonitorMode(false);
+		}
+
+		request->send(200, "application/json", "{}");
+	});
 }
 
-void setupSettingsGet()
+/**
+ * api settings endpoint
+ */
+void setupApiSettings()
 {
 	server.on("/api/settings", HTTP_GET, [](AsyncWebServerRequest *request) {
 		AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -243,17 +293,17 @@ void setupSettingsGet()
 		root["system"]["utc"] = NVS.getInt("system.utc");
 		root["system"]["dst"] = NVS.getInt("system.dst");
 
-		root["wifi"]["ssid"] = NVS.getString("wifi.ssid");
+		root["device"]["theme"] = NVS.getString("device.theme");
+		root["device"]["name"] = NVS.getString("device.name");
 
 		root["display"]["host"] = NVS.getString("display.host");
+
+		root["sensor"]["monitor"] = isSensorMonitorMode();
 
 		serializeJson(root, *response);
 		request->send(response);
 	});
-}
 
-void setupSettingsPost()
-{
 	server.on(
 		"/api/settings", HTTP_PUT, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
 			DynamicJsonDocument doc(2048);
@@ -274,10 +324,7 @@ void setupSettingsPost()
 
 				request->send(200, "application/ld+json; charset=utf-8", "{}");
 			} });
-}
 
-void setupSettingsFactoryReset()
-{
 	server.on(
 		"/api/settings/reset", HTTP_GET, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
 			settingsFactoryReset();
@@ -285,53 +332,10 @@ void setupSettingsFactoryReset()
 			request->send(200, "application/ld+json; charset=utf-8", "{}"); });
 }
 
-void setupEpdScan()
-{
-	server.on("/api/epd/scan", HTTP_GET, [](AsyncWebServerRequest *request) {
-		String json = "[";
-		Serial.printf("Browsing for service _%s._%s.local. ... ", "http", "tcp");
-		int n = MDNS.queryService("http", "tcp");
-		if (n == 0)
-		{
-			Serial.println("no services found");
-		}
-		else
-		{
-			Serial.print(n);
-			Serial.println(" service(s) found");
-
-			size_t cnt = 0;
-			for (size_t i = 0; i < n; ++i)
-			{
-				// checking for epd
-				if (MDNS.hasTxt(i, "epd"))
-				{
-					if (cnt)
-					{
-						json += ",";
-					}
-					cnt++;
-
-					json += "{";
-					json += "\"host\":\"" + MDNS.hostname(i) + "\"";
-					json += ",\"ip\":\"" + MDNS.IP(i).toString() + "\"";
-					json += ",\"port\":" + String(MDNS.port(i));
-					json += "}";
-				}
-			}
-		}
-		Serial.println();
-
-		json += "]";
-		request->send(200, "application/json", json);
-		json = String();
-	});
-}
-
-void setupEpdConnect()
+void setupApiDisplay()
 {
 	server.on(
-		"/api/epd/connect", HTTP_POST, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+		"/api/display/connect", HTTP_POST, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
 			DynamicJsonDocument doc(1024);
 
 			DeserializationError error = deserializeJson(doc, data);
@@ -353,28 +357,9 @@ void setupEpdConnect()
 
 				request->send(400, "application/ld+json; charset=utf-8", "{}");
 			} });
-}
 
-void setupEpdUpdate()
-{
-	server.on("/api/epd/update", HTTP_GET, [](AsyncWebServerRequest *request) {
+	server.on("/api/display/update", HTTP_GET, [](AsyncWebServerRequest *request) {
 		triggerDisplayUpdate = true;
-
-		request->send(200, "application/json", "{}");
-	});
-}
-
-void setupSensorMonitorMode()
-{
-	server.on("/api/sensor/monitor", HTTP_GET, [](AsyncWebServerRequest *request) {
-		if (request->hasParam("on"))
-		{
-			sensorSetMonitorMode(true);
-		}
-		else if (request->hasParam("off"))
-		{
-			sensorSetMonitorMode(false);
-		}
 
 		request->send(200, "application/json", "{}");
 	});
@@ -440,9 +425,9 @@ void setupApiDevice()
 }
 
 /**
- * scan for wifi
+ * api wifi endpoint
  */
-void setupWifiScan()
+void setupApiWifi()
 {
 	server.on("/api/wifi/scan", HTTP_GET, [](AsyncWebServerRequest *request) {
 		String json = "[";
@@ -470,13 +455,7 @@ void setupWifiScan()
 		request->send(200, "application/json", json);
 		json = String();
 	});
-}
 
-/**
- * @todo
- */
-void setupWifiConnect()
-{
 	server.on(
 		"/api/wifi/connect", HTTP_POST, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
 			DynamicJsonDocument doc(1024);
@@ -533,52 +512,83 @@ void setupApiUpdate()
 	});
 }
 
+/**
+ * ota update
+ */
 void setupOTA()
 {
-	// Simple Firmware Update Form
-	/*
+	// recovery update mode
 	server.on("/update", HTTP_GET, [](AsyncWebServerRequest *request) {
-		// TODO in die pwa auslagern
 		request->send(200, "text/html", "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");
 	});
-	*/
 
+	// handle update
 	server.on(
-		"/update", HTTP_POST, [](AsyncWebServerRequest *request) {
-			shouldReboot = !Update.hasError();
-			AsyncWebServerResponse *response = request->beginResponse(200, "application/ld+json; charset=utf-8", shouldReboot ? "{\"success\": true}" : "{\"success\": false}");
-
-			response->addHeader("Connection", "close");
-			request->send(response); },
+		"/update", HTTP_POST, [](AsyncWebServerRequest *request) {},
 		[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
 			if (!index)
 			{
 				Serial.printf("Update Start: %s\n", filename.c_str());
-				// bool canBegin = Update.begin(contentLength, U_FLASH);
-				// bool canBegin = Update.begin(contentLength, U_SPIFFS);
-				if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000))
-				{
-					Update.printError(Serial);
-				}
-			}
+				uint8_t flashType = 255;
 
-			if (!Update.hasError())
-			{
-				if (Update.write(data, len) != len)
+				if (filename.equals("firmware.bin"))
 				{
-					Update.printError(Serial);
+					Serial.println("firmware update");
+					flashType = U_FLASH;
 				}
-			}
-
-			if (final)
-			{
-				if (Update.end(true))
+				else if (filename.equals("spiffs.bin"))
 				{
-					Serial.printf("Update Success: %uB\n", index + len);
+					Serial.println("spiffs update");
+					flashType = U_SPIFFS;
+
+					SPIFFS.end();
 				}
 				else
 				{
-					Update.printError(Serial);
+					Serial.println("unkown, reject");
+				}
+
+				if (flashType != 255)
+				{
+					Serial.println("update start...");
+					if (!Update.begin(UPDATE_SIZE_UNKNOWN, flashType))
+					{
+						Update.printError(Serial);
+					}
+				}
+				else
+				{
+					Serial.println("unkown update type, reject");
+				}
+			}
+
+			if (Update.isRunning())
+			{
+				if (!Update.hasError())
+				{
+					if (Update.write(data, len) != len)
+					{
+						Update.printError(Serial);
+					}
+				}
+
+				if (final)
+				{
+					AsyncWebServerResponse *response = request->beginResponse(200, "application/json; charset=utf-8", !Update.hasError() ? "{\"success\": true}" : "{\"success\": false}");
+					response->addHeader("Refresh", "20");
+					response->addHeader("Location", "/");
+					request->send(response);
+
+					if (!Update.end(true))
+					{
+						Update.printError(Serial);
+					}
+					else
+					{
+						Serial.println("Update complete");
+						Serial.flush();
+						ESP.restart();
+					}
 				}
 			}
 		});

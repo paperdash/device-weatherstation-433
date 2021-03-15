@@ -38,6 +38,10 @@ const actions = {
     try {
       const response = await axios.get('/api/settings')
       commit('setSettings', response.data)
+
+      if (response.data.sensor.monitor) {
+        commit('sensors/setMonitorMode', true, { root: true })
+      }
     } catch (error) {
       commit('setSettings', {})
     }
