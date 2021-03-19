@@ -1,5 +1,14 @@
 <template>
   <div class="pb-5">
+    <template v-if="isLoading">
+      <v-overlay absolute>
+        <v-progress-circular
+          indeterminate
+          size="64"
+        />
+      </v-overlay>
+    </template>
+
     <v-tabs
       v-model="tabs"
       centered
@@ -54,9 +63,12 @@
     },
     data: () => ({
       tabs: 0,
+      isLoading: true,
     }),
     created () {
-      this.$store.dispatch('sensors/load')
+      this.$store.dispatch('sensors/load').then(() => {
+        this.isLoading = false
+      })
     },
   }
 </script>
