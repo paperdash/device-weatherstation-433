@@ -1,0 +1,20 @@
+{
+  "system": {
+	"country": "DE",
+	"language": "de",
+	"timezone": "Europe/Berlin",
+	"utc": 3600,
+	"dst": 7200,
+	"wifi": "xd-design.info"
+  },
+  "device": {
+	"theme": "white",
+	"name": "weather-station retro"
+  },
+  "display": {
+	"host": "192.168.178.88"
+  },
+  "sensor": {
+	"monitor": false
+  }
+}

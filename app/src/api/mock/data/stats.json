@@ -1,0 +1,37 @@
+{
+  "wifi": {
+	"mac": "24:6F:28:81:F4:B4",
+	"ssid": "xd-design.info",
+	"connected": true,
+	"rssi": -63,
+	"ip": "192.168.178.34",
+	"channel": 1,
+	"dns": "192.168.178.1",
+	"gateway": "192.168.178.1"
+  },
+  "device": {
+	"id": "00:00:24:6F:28:81:F4:B4",
+	"time": 1616181835,
+	"hostname": "paperdash-weatherstation",
+	"runtime": 13436,
+	"bootCycle": 1,
+	"configured": false,
+	"fs": {
+	  "total": 1378241,
+	  "used": 292917,
+	  "free": 1085324
+	},
+	"heap": {
+	  "total": 318560,
+	  "free": 165120
+	}
+  },
+  "firmware": {
+	"created": 1616168341,
+	"rev": "680f50d8da85b6954d82f0d133ff4aa2b487c47a"
+  },
+  "app": {
+	"created": 0,
+	"rev": ""
+  }
+}

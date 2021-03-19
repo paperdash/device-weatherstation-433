@@ -1,0 +1,14 @@
+[
+  {
+	"hostname": "paperdash-epd",
+	"ip": "192.168.178.88",
+	"port": 80,
+	"type": "epd"
+  },
+  {
+	"hostname": "paperdash-display",
+	"ip": "192.168.178.27",
+	"port": 80,
+	"type": "epd"
+  }
+]

@@ -1,5 +1,6 @@
 const webpack = require('webpack')
 const CompressionPlugin = require('compression-webpack-plugin')
+const path = require('path')
 
 module.exports = {
   outputDir: '../data/dist',
@@ -37,6 +38,13 @@ module.exports = {
           ],
         },
       })
+
+    // api
+    const apiClient = process.env.VUE_APP_API_CLIENT || 'mock' // TODO mock or server
+    config.resolve.alias.set(
+      'api-client',
+      path.resolve(__dirname, `src/api/${apiClient}`),
+    )
   },
   configureWebpack: () => {
     if (process.env.NODE_ENV === 'production') {
