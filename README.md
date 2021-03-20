@@ -6,7 +6,7 @@
 ![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)
 
 
-# 433 Mhz weater station addon
+# 433 Mhz weater station
 
 * 🌍 [Website](https://paperdash.io/) - Learn more about paperdash.io
 * 📡 [Discover](http://local.paperdash.io/) - Find devices in your local network
