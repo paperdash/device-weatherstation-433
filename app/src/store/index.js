@@ -27,7 +27,6 @@ connection.onmessage = (message) => {
   const log = JSON.parse(message.data)
   log.last_update = new Date()
 
-  console.log(log)
   store.commit('sensors/update', log)
   store.commit('sensors/addHistory', log)
   store.commit('notification', log)

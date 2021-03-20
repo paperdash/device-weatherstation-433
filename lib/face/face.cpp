@@ -27,15 +27,13 @@ void imageGenerate(GFXcanvas1 *_canvas)
 
 	// init helper
 	int16_t tbx, tby;
-	uint16_t tbw, tbh, x;
+	uint16_t tbw, tbh;
 	char label[64];
 
 	// header - current time
 	strftime(label, 64, "%c", &now);
 	_canvas->setFont(&FreeMonoBold18pt7b);
 	_canvas->getTextBounds(label, 0, 0, &tbx, &tby, &tbw, &tbh);
-	x = (tbw / 2) - tbx;
-	// Serial.println(x);
 	_canvas->setCursor(10, 35);
 	_canvas->print(label);
 
