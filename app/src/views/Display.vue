@@ -4,7 +4,7 @@
     rounded="lg"
     class="pa-5"
   >
-    <v-card-title class="display-2 mb-12 justify-center text-center">
+    <v-card-title class="text-h3 mb-12 justify-center text-center">
       Connect a display
     </v-card-title>
 

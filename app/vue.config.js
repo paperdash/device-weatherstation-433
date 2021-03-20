@@ -1,6 +1,26 @@
 const webpack = require('webpack')
 const CompressionPlugin = require('compression-webpack-plugin')
 const path = require('path')
+const VersionFile = require('webpack-version-file')
+
+// get git info from command line
+const commitHash = require('child_process')
+  .execSync('git rev-parse HEAD')
+  .toString()
+
+const buildInfo = {
+  commitHash: commitHash.trim(),
+  buildTime: JSON.stringify(new Date().getTime() / 1000 | 0),
+}
+
+const appVersionJson = new VersionFile({
+  output: '../data/dist/version.json',
+  template: './version.ejs',
+  data: {
+    commitHash: buildInfo.commitHash,
+    buildTime: buildInfo.buildTime,
+  },
+})
 
 module.exports = {
   outputDir: '../data/dist',
@@ -46,9 +66,9 @@ module.exports = {
       path.resolve(__dirname, `src/api/${apiClient}`),
     )
   },
-  configureWebpack: () => {
+  configureWebpack: config => {
     if (process.env.NODE_ENV === 'production') {
-      // optimize build for esp
+      // optimize build for esp32
       return {
         plugins: [
           // reduce total size of the app
@@ -59,10 +79,18 @@ module.exports = {
           new CompressionPlugin({
             deleteOriginalAssets: true,
           }),
+          // add version info
+          appVersionJson,
         ],
       }
     } else {
       // mutate for development...
+      return {
+        plugins: [
+          // add version info
+          appVersionJson,
+        ],
+      }
     }
   },
 }

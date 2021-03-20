@@ -141,7 +141,7 @@
         offset-lg="3"
       >
         <v-sheet
-          min-height="70vh"
+          _min-height="30vh"
           rounded="lg"
         >
           <transition-page>

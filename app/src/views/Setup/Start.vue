@@ -13,7 +13,7 @@
         sm="8"
       >
         <v-card flat>
-          <v-card-title class="display-2 mt-12 justify-center text-center">
+          <v-card-title class="text-h3 mt-12 justify-center text-center">
             Hello paperdash
           </v-card-title>
 

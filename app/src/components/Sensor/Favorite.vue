@@ -15,7 +15,7 @@
           <v-avatar
             color="grey darken-1"
             size="70"
-            class="subtitle-1 white--text"
+            class="text-subtitle-1 white--text"
           >
             <template v-if="isOffline(sensor)">
               --
