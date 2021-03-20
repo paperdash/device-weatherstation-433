@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <SPIFFS.h>
+#include "device.h"
 #include "wlan.h"
 #include "settings.h"
 #include "sensor.h"
@@ -23,6 +24,7 @@ void setup()
 		return;
 	}
 
+	setupDevice();
 	setupSettings();
 	setupSensor();
 
