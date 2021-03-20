@@ -91,6 +91,7 @@ void setupApp()
 	setupApiDevice();
 	setupApiSensor();
 	setupApiDisplay();
+	setupApiWifi();
 	setupApiUpdate();
 	setupOTA();
 
