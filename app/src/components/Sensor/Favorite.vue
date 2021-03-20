@@ -1,5 +1,5 @@
 <template>
-  <v-row class="d-flex mt-2">
+  <v-row class="d-flex mt-2 px-5">
     <v-col
       v-for="(sensor, i) in favoriteList"
       :key="i + 1000"

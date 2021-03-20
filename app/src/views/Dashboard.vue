@@ -1,14 +1,5 @@
 <template>
   <div class="pb-5">
-    <template v-if="isLoading">
-      <v-overlay absolute>
-        <v-progress-circular
-          indeterminate
-          size="64"
-        />
-      </v-overlay>
-    </template>
-
     <v-tabs
       v-model="tabs"
       centered
@@ -36,8 +27,31 @@
       </v-tab>
     </v-tabs>
 
-    <v-tabs-items v-model="tabs">
-      <v-tab-item class="px-5">
+    <template v-if="isLoading">
+      <v-row>
+        <v-col cols="6">
+          <v-skeleton-loader
+            type="list-item-avatar, card-heading"
+          />
+        </v-col>
+        <v-col cols="6">
+          <v-skeleton-loader
+            type="list-item-avatar, card-heading"
+          />
+        </v-col>
+        <v-col>
+          <v-skeleton-loader
+            type="list-item-avatar, card-heading"
+          />
+        </v-col>
+      </v-row>
+    </template>
+
+    <v-tabs-items
+      v-else
+      v-model="tabs"
+    >
+      <v-tab-item>
         <favorite-sensors />
       </v-tab-item>
       <v-tab-item>
@@ -54,6 +68,7 @@
   import FavoriteSensors from '@/components/Sensor/Favorite'
   import DiscoveredSensors from '@/components/Sensor/Discovered'
   import LiveSensors from '@/components/Sensor/Live'
+  import { mapActions } from 'vuex'
 
   export default {
     components: {
@@ -66,9 +81,14 @@
       isLoading: true,
     }),
     created () {
-      this.$store.dispatch('sensors/load').then(() => {
+      this.loadSensors().then(() => {
         this.isLoading = false
       })
+    },
+    methods: {
+      ...mapActions({
+        loadSensors: 'sensors/load',
+      }),
     },
   }
 </script>

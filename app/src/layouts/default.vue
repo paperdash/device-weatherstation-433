@@ -145,7 +145,7 @@
           rounded="lg"
         >
           <transition-page>
-            <router-view class="pa-5" />
+            <router-view />
           </transition-page>
         </v-sheet>
       </v-col>

@@ -2,6 +2,7 @@
   <v-card
     flat
     rounded="lg"
+    class="pa-5"
   >
     <v-card-title class="display-2 mb-12 justify-center text-center">
       Wifi settings
@@ -106,18 +107,19 @@
         v-else
         type="list-item-two-line,list-item-two-line,list-item-two-line"
       />
+    </v-list>
 
-      <v-divider />
+    <v-divider class="mt-12" />
 
+    <v-card-actions>
       <v-btn
         text
         color="primary"
-        class="_px-0 my-2"
         disabled
       >
         Choose Another Network
       </v-btn>
-    </v-list>
+    </v-card-actions>
 
     <v-dialog
       v-model="wifiPasswordModal"
@@ -136,7 +138,7 @@
 <script>
   import { mapState } from 'vuex'
   import setupWifiConnect from '@/components/Setup/WifiConnect'
-  import apiDevice from '@/api/device'
+  import apiDevice from 'api-device'
 
   export default {
     components: {
@@ -158,9 +160,10 @@
       }),
     },
     created () {
-      apiDevice.wifiScan(list => {
+      apiDevice.wifiScan().then(list => {
         this.wifiAvailable = list
-
+        this.isLoading = false
+      }).catch(() => {
         this.isLoading = false
       })
     },
@@ -177,11 +180,11 @@
         this.connectingSSID = ssid
         this.wifiPasswordModal = false
 
-        apiDevice.wifiConnect(ssid, password, () => {
+        apiDevice.wifiConnect(ssid, password).then(() => {
           setTimeout(() => {
             // phone should be back in regular wifi
             // search for device via mDNS
-            window.location = 'http://paperdash-epd.local'
+            window.location = 'http://paperdash-weatherstation.local'
           }, 5000)
         })
       },
