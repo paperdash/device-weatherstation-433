@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "serve-mock": "VUE_APP_API_CLIENT=mock vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build-demo": "VUE_APP_API_CLIENT=mock vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@material-icons/svg": "^1.0.4",
+    "@mdi/js": "^5.9.55",
     "@vue/cli-plugin-babel": "~4.2.0",
     "@vue/cli-plugin-eslint": "~4.2.0",
     "@vue/cli-service": "~4.2.0",
