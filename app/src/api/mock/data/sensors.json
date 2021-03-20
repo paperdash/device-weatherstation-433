@@ -1,0 +1,162 @@
+[
+  {
+	"id": 85,
+	"temperature": 0.1,
+	"humidity": 69,
+	"last_update": 1608371616,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 71,
+	"temperature": 18.4,
+	"humidity": 52,
+	"last_update": 1616231249,
+	"protocol": "",
+	"label": "Cellar"
+  },
+  {
+	"id": 13,
+	"temperature": 25.9,
+	"humidity": 63,
+	"last_update": 1597174985,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 223,
+	"temperature": 24.2,
+	"humidity": 70,
+	"last_update": 1597174989,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 92,
+	"temperature": 0.7,
+	"humidity": 8,
+	"last_update": 1609074509,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 161,
+	"temperature": 26.2,
+	"humidity": 59,
+	"last_update": 1597174966,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 90,
+	"temperature": -25.5,
+	"humidity": 0,
+	"last_update": 1597148786,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 10,
+	"temperature": 12.9,
+	"humidity": 0,
+	"last_update": 1597173900,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 42,
+	"temperature": 0,
+	"humidity": 0,
+	"last_update": 1597173918,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 89,
+	"temperature": 3.7,
+	"humidity": 71,
+	"last_update": 1614841562,
+	"protocol": "",
+	"label": "Balcony"
+  },
+  {
+	"id": 175,
+	"temperature": 20.7,
+	"humidity": 45,
+	"last_update": 1614841569,
+	"protocol": "",
+	"label": "Office"
+  },
+  {
+	"id": 134,
+	"temperature": 20.9,
+	"humidity": 50,
+	"last_update": 1616231226,
+	"protocol": "",
+	"label": "Bedroom"
+  },
+  {
+	"id": 199,
+	"temperature": 21.1,
+	"humidity": 48,
+	"last_update": 1616231227,
+	"protocol": "",
+	"label": "Livingroom"
+  },
+  {
+	"id": 170,
+	"temperature": 25.7,
+	"humidity": 42,
+	"last_update": 1614786960,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 31,
+	"temperature": 6.3,
+	"humidity": 20,
+	"last_update": 1605030467,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 88,
+	"temperature": 0.6,
+	"humidity": 32,
+	"last_update": 1609913448,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 221,
+	"temperature": 3.2,
+	"humidity": 10,
+	"last_update": 17,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 157,
+	"temperature": 0.2,
+	"humidity": 0,
+	"last_update": 17,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 146,
+	"temperature": 18.4,
+	"humidity": 48,
+	"last_update": 11102,
+	"protocol": "",
+	"label": ""
+  },
+  {
+	"id": 207,
+	"temperature": 3.4,
+	"humidity": 10,
+	"last_update": 11104,
+	"protocol": "",
+	"label": ""
+  }
+]

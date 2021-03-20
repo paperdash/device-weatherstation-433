@@ -1,4 +1,4 @@
-import axios from 'axios'
+import apiDevice from 'api-device'
 
 const state = () => ({
   list: [],
@@ -50,27 +50,28 @@ const mutations = {
 const actions = {
   async load ({ commit }) {
     try {
-      const response = await axios.get('/api/sensors')
-      commit('setList', response.data)
+      const list = await apiDevice.getSensors()
+      commit('setList', list)
     } catch (error) {
       commit('setList', [])
     }
   },
-  async putSensor ({ commit }, [id, sensor]) {
+  async update ({ commit }, [id, sensor]) {
     try {
-      await axios.put('/api/sensor/' + id, {
+      await apiDevice.updateSensor(id, {
         label: sensor.label,
       })
-      commit('updateSensor', sensor)
+
+      commit('update', sensor)
     } catch (error) {
       console.warn(error)
     }
   },
-  async deleteSensor ({ commit }, id) {
+  async delete ({ commit }, id) {
     try {
-      await axios.delete('/api/sensor/' + id)
-      commit('deleteSensor', id)
-      commit('notification', 'sensor #' + id + ' deleted')
+      await apiDevice.deleteSensor(id)
+      commit('delete', id)
+      commit('notification', 'sensor #' + id + ' deleted', { root: true })
     } catch (error) {
       console.warn(error)
     }
@@ -80,7 +81,7 @@ const actions = {
       const toggle = !state.monitorMode
       const mode = toggle ? 'on' : 'off'
 
-      await axios.get('/api/sensor/monitor?' + mode)
+      await apiDevice.updateSensorMonitorMode(mode)
       commit('setMonitorMode', toggle)
       commit('notification', 'monitor mode switched ' + mode, { root: true })
     } catch (error) {

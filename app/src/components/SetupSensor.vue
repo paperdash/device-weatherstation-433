@@ -99,6 +99,8 @@
 </template>
 
 <script>
+  import { mapActions } from 'vuex'
+
   export default {
     props: {
       sensor: {
@@ -132,6 +134,10 @@
     },
 
     methods: {
+      ...mapActions({
+        updateSensor: 'sensors/update',
+      }),
+
       initEdit: function (sensor) {
         // clone for editing
         this.sensorEdit = { ...sensor }
@@ -153,9 +159,10 @@
           this.sensorEdit.label = this.replaceSensor.label
         }
 
-        this.$store.dispatch('putSensor', [this.sensorEdit.id, this.sensorEdit]).then(() => {
+        // TODO refactor
+        this.updateSensor([this.sensorEdit.id, this.sensorEdit]).then(() => {
           if (this.action === 'replace') {
-            this.$store.commit('deleteSensor', this.replaceSensor.id)
+            this.$store.commit('sensors/delete', this.replaceSensor.id)
           }
 
           this.$emit('done')

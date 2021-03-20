@@ -74,4 +74,28 @@ export default {
       .get('/stats')
       .then(response => response.data)
   },
+
+  getSensors () {
+    return axios
+      .get('/api/sensors')
+      .then(response => response.data)
+  },
+
+  deleteSensor (id) {
+    return axios
+      .delete('/api/sensor/' + id)
+      .then(response => response.data)
+  },
+
+  updateSensor (id, data) {
+    return axios
+      .put('/api/sensor/' + id, data)
+      .then(response => response.data)
+  },
+
+  updateSensorMonitorMode (mode) {
+    return axios
+      .get('/api/sensor/monitor?' + mode)
+      .then(response => response.data)
+  },
 }

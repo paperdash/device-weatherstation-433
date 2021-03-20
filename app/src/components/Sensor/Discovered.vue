@@ -157,7 +157,9 @@
         this.dialog = true
       },
 
-      ...mapActions(['sensors/delete']),
+      ...mapActions({
+        deleteSensor: 'sensors/delete',
+      }),
 
       onCommit () {
 
