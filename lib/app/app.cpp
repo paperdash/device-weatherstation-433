@@ -316,7 +316,8 @@ void setupApiSettings()
 			DynamicJsonDocument doc(2048);
 
 			DeserializationError error = deserializeJson(doc, data);
-			if (error) {
+			if (error)
+			{
 				Serial.print(F("deserializeJson() failed with code "));
 				Serial.println(error.c_str());
 
@@ -324,13 +325,34 @@ void setupApiSettings()
 			}
 			else
 			{
+				JsonVariant system = doc["system"];
+				if (!system.isNull())
+				{
+					NVS.setString("system.country", system["country"]);
+					NVS.setString("system.language", system["language"]);
+					NVS.setString("system.timezone", system["timezone"]);
+					NVS.setInt("system.utc", system["utc"].as<unsigned int>());
+					NVS.setInt("system.dst", system["dst"].as<unsigned int>());
+				}
 
-				// TODO
+				JsonVariant device = doc["device"];
+				if (!device.isNull())
+				{
+					NVS.setString("device.theme", device["theme"]);
+					NVS.setString("device.name", device["name"]);
+				}
+
+				JsonVariant display = doc["display"];
+				if (!display.isNull())
+				{
+					NVS.setString("display.host", display["host"]);
+				}
 
 				NVS.commit();
 
 				request->send(200, "application/ld+json; charset=utf-8", "{}");
-			} });
+			}
+		});
 
 	server.on(
 		"/api/settings/reset", HTTP_GET, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
