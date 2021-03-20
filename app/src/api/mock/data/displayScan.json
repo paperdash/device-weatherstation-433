@@ -1,14 +1,24 @@
 [
   {
 	"hostname": "paperdash-epd",
+	"name": "living room",
 	"ip": "192.168.178.88",
 	"port": 80,
-	"type": "epd"
+	"type": "epd",
+	"screen": {
+	  "width": 640,
+	  "height": 384
+	}
   },
   {
 	"hostname": "paperdash-display",
+	"name": "",
 	"ip": "192.168.178.27",
 	"port": 80,
-	"type": "epd"
+	"type": "epd",
+	"screen": {
+	  "width": 640,
+	  "height": 384
+	}
   }
 ]

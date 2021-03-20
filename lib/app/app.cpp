@@ -37,6 +37,7 @@ void setupOTA();
 
 bool shouldReboot = false;
 bool triggerDisplayUpdate = false;
+const char *testRemoteDisplay;
 
 void loadAppVersion()
 {
@@ -173,7 +174,12 @@ void loopApp()
 	else if (triggerDisplayUpdate)
 	{
 		triggerDisplayUpdate = false;
-		updateDisplay();
+		if (testRemoteDisplay) {
+			updateDisplay(testRemoteDisplay);
+			testRemoteDisplay = NULL;
+		} else {
+			updateDisplay();
+		}
 	}
 
 	ws.cleanupClients();
@@ -334,31 +340,11 @@ void setupApiSettings()
 
 void setupApiDisplay()
 {
-	server.on(
-		"/api/display/connect", HTTP_POST, [](AsyncWebServerRequest *request) { /* nothing and dont remove it */ }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-			DynamicJsonDocument doc(1024);
-
-			DeserializationError error = deserializeJson(doc, data);
-			if (error) {
-				Serial.print(F("deserializeJson() failed with code "));
-				Serial.println(error.c_str());
-
-				request->send(404, "application/ld+json; charset=utf-8", "{}");
-			}
-			else
-			{
-				JsonVariant host = doc["host"];
-				if (!host.isNull()) {
-					Serial.println(host.as<char*>());
-
-					NVS.setString("display.host", host);
-					request->send(200, "application/ld+json; charset=utf-8", "{}");
-				}
-
-				request->send(400, "application/ld+json; charset=utf-8", "{}");
-			} });
-
 	server.on("/api/display/update", HTTP_GET, [](AsyncWebServerRequest *request) {
+
+		if (request->hasParam("hostname")) {
+			testRemoteDisplay = request->getParam("hostname")->value().c_str();
+		}
 		triggerDisplayUpdate = true;
 
 		request->send(200, "application/json", "{}");
@@ -408,7 +394,7 @@ void setupApiDevice()
 					cnt++;
 
 					json += "{";
-					json += "\"host\":\"" + MDNS.hostname(i) + "\"";
+					json += "\"hostname\":\"" + MDNS.hostname(i) + "\"";
 					json += ",\"ip\":\"" + MDNS.IP(i).toString() + "\"";
 					json += ",\"port\":" + String(MDNS.port(i));
 					json += ",\"type\":\"" + String(MDNS.txt(i, 0)) + "\"";

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify/lib'
 
-import { mdiHomeThermometerOutline, mdiSd, mdiPulse } from '@mdi/js'
+import { mdiHomeThermometerOutline, mdiSd, mdiPulse, mdiOverscan } from '@mdi/js'
 
 // enable system icons
 // @see https://vuetifyjs.com/en/customization/icons#component-icons
@@ -47,6 +47,7 @@ const MY_ICONS = {
     more_vert: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/more_vert/baseline.svg') },
     // reorder: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/reorder/baseline.svg')},
     // preview: {component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/remove_red_eye/baseline.svg')},
+  done: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/done/baseline.svg') },
   memory: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/memory/baseline.svg') },
   lock: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/lock/baseline.svg') },
   settings: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/settings/baseline.svg') },
@@ -57,6 +58,7 @@ const MY_ICONS = {
   mdiHomeThermometerOutline,
   storage: mdiSd,
   mdiPulse,
+  mdiOverscan,
 
   // wifi
   wifi: { component: () => import(/* webpackChunkName: "icons" */'!vue-svg-loader!@material-icons/svg/svg/wifi/baseline.svg') },

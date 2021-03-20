@@ -30,7 +30,7 @@ export default {
     return fetch(emptyResponse, 1000)
   },
 
-  displayUpdate () {
+  displayUpdate (hostname) {
     return fetch(emptyResponse, 1000)
   },
 

@@ -35,12 +35,11 @@ export default {
       .then(
         axios.spread((...responses) => {
           responses.forEach(item => {
-            console.log(item)
-
             result.push({
               ip: item.data.wifi.ip,
               hostname: item.data.device.hostname,
               name: item.data.device.name,
+              screen: item.data.device.screen,
             })
           })
         }),
@@ -49,9 +48,10 @@ export default {
     return result
   },
 
-  displayUpdate () {
+  displayUpdate (hostname) {
+    const query = hostname ? '?hostname=' + hostname : ''
     return axios
-      .get('/api/display/update')
+      .get('/api/display/update' + query)
       .then(response => response.data)
   },
 
