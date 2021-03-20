@@ -1,4 +1,4 @@
-import axios from 'axios'
+import apiDevice from 'api-device'
 
 const state = () => ({
   stats: {},
@@ -28,32 +28,30 @@ const mutations = {
 const actions = {
   async loadStats ({ commit }) {
     try {
-      const response = await axios.get('/stats')
-      commit('setStats', response.data)
+      const stats = await apiDevice.getStats()
+      commit('setStats', stats)
     } catch (error) {
       commit('setStats', {})
     }
   },
   async loadSettings ({ commit }) {
     try {
-      const response = await axios.get('/api/settings')
-      commit('setSettings', response.data)
+      const settings = await apiDevice.getSettings()
+      commit('setSettings', settings)
 
-      if (response.data.sensor.monitor) {
+      if (settings.sensor.monitor) {
         commit('sensors/setMonitorMode', true, { root: true })
       }
     } catch (error) {
       commit('setSettings', {})
     }
   },
+
   async saveSettings ({ commit, state }) {
     try {
-      await axios.put('/api/settings', state.settings, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      commit('notification', 'settings saved')
+      await apiDevice.putSettings(state.settings)
+
+      commit('notification', 'settings saved', { root: true })
     } catch (error) {
       console.warn(error)
     }

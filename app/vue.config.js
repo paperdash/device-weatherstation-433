@@ -40,9 +40,9 @@ module.exports = {
       })
 
     // api
-    const apiClient = process.env.VUE_APP_API_CLIENT || 'mock' // TODO mock or server
+    const apiClient = process.env.VUE_APP_API_CLIENT || 'server' // TODO mock or server
     config.resolve.alias.set(
-      'api-client',
+      'api-device',
       path.resolve(__dirname, `src/api/${apiClient}`),
     )
   },
