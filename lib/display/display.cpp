@@ -116,9 +116,8 @@ uint16_t postFile(const char *fileName, const char *servername, uint16_t port)
 		Serial.println("");
 
 		// Make a HTTP request:
-		client.println("POST /api/face HTTP/1.0");
-		client.println("Host: 192.168.178.65");
-		client.println("User-Agent: curl/7.64.1");
+		client.println("POST /api/device/screen HTTP/1.0");
+		client.println("User-Agent: paperdash/weatherstation");
 		client.println("Accept: */*");
 		client.printf("Content-Length: %d\n", fp.size() + 174);
 		client.println("Content-Type: multipart/form-data; boundary=------------------------5c8e39ca1848977d");
