@@ -6,9 +6,6 @@ import vuetify from './plugins/vuetify'
 
 Vue.config.productionTip = false
 
-// TODO remove it
-Vue.use(require('vue-moment'))
-
 new Vue({
   vuetify,
   router,
