@@ -31,7 +31,7 @@
             sm="6"
           >
             <v-item
-              #default="{active, toggle}"
+              v-slot="{active, toggle}"
               :value="display.ip"
             >
               <div>

@@ -16,7 +16,7 @@
         <v-icon>$close</v-icon>
       </v-btn>
 
-      <template v-slot:extension>
+      <template #extension>
         <v-tabs
           v-model="action"
           centered
@@ -55,7 +55,7 @@
               item-value="id"
               dense
             >
-              <template v-slot:item="data">
+              <template #item="data">
                 {{ data.item.label }}
                 <v-spacer />
                 <template v-if="data.item.lastUpdate === 0">
@@ -65,7 +65,7 @@
                   {{ data.item.temperature }}&deg;C / {{ data.item.humidity }} &percnt;
                 </template>
               </template>
-              <template v-slot:selection="data">
+              <template #selection="data">
                 {{ data.item.label }}
               </template>
             </v-select>
