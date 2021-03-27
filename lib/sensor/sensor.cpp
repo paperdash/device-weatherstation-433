@@ -31,6 +31,7 @@ bool sensorMonitorMode = false;
 
 // private methods
 void rfCallback(const String &protocol, const String &message, int status, size_t repeats, const String &deviceID);
+void sensorCleanUp();
 void loadSensors();
 bool isAutoSavedRequired();
 void unsavedSinceReset();
@@ -57,10 +58,9 @@ void loopSensor()
 
 	if (isAutoSavedRequired())
 	{
+		sensorCleanUp();
 		saveSensors();
 	}
-
-	// TODO clean up every x minutes
 }
 
 structSensorData *getSensorList()
@@ -70,7 +70,32 @@ structSensorData *getSensorList()
 
 void sensorCleanUp()
 {
-	// TODO delete dead sensors
+	time_t now = time(0);
+	uint32_t thresholdSec = 3600 * 24 * 3; // 3 days
+
+	for (uint8_t s = 0; s < SENSOR_COUNT; s++)
+	{
+		// remove auto discovered sensors
+		if (sensorList[s].id != 0 && strlen(sensorList[s].label) == 0)
+		{
+			double diffSec = difftime(now, sensorList[s].last_update);
+			Serial.print("Sensor: ");
+			Serial.print(sensorList[s].id);
+			Serial.print(" last_update before: ");
+			Serial.print(diffSec);
+
+			if (diffSec > thresholdSec)
+			{
+				// clean up
+				Serial.println("  - clean up");
+				deleteSensor(sensorList[s].id);
+			}
+			else
+			{
+				Serial.println();
+			}
+		}
+	}
 }
 
 void loadSensors()
