@@ -51,6 +51,15 @@ const actions = {
   async load ({ commit }) {
     try {
       const list = await apiDevice.getSensors()
+
+      list.forEach((sensor, i) => {
+        if (list[i].last_update > 0) {
+          list[i].last_update = new Date(list[i].last_update * 1000)
+        } else {
+          list[i].last_update = null
+        }
+      })
+
       commit('setList', list)
     } catch (error) {
       commit('setList', [])

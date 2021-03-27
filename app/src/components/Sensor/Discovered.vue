@@ -34,7 +34,10 @@
 
             <v-list-item-content>
               <v-list-item-title>
-                {{ sensor.last_update | moment("from") }} ( {{ sensor.label }} )
+                {{ sensor.last_update.toLocaleTimeString() }}
+                <span v-if="sensor.label">
+                  ({{ sensor.label }})
+                </span>
               </v-list-item-title>
               <v-list-item-subtitle>
                 {{ sensor.humidity }}%
@@ -81,7 +84,13 @@
 
             <v-list-item-content>
               <v-list-item-title>
-                {{ sensor.last_update | moment("from") }} ( {{ sensor.label }} )
+                <template v-if="sensor.last_update">
+                  {{ sensor.last_update.toLocaleString() }}
+                </template>
+
+                <span v-if="sensor.label">
+                  ({{ sensor.label }})
+                </span>
               </v-list-item-title>
               <v-list-item-subtitle>
                 {{ sensor.humidity }}%
@@ -133,7 +142,7 @@
     }),
     computed: {
       recentlyActivity () {
-        return this.sensors.slice(0).sort((a, b) => (a.last_update > b.last_update) ? -1 : 1)
+        return this.sensors.slice(0).sort((a, b) => b.last_update - a.last_update)
       },
       activeList () {
         return this.recentlyActivity.filter(sensor => !this.isOffline(sensor)).sort((a, b) => (a.id < b.id) ? -1 : 1)
