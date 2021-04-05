@@ -101,10 +101,12 @@ const actions = {
 
 const getters = {
   isOffline: () => (sensor) => {
-    const update = new Date(sensor.last_update * 1000)
     const outdated = Date.now() - (10 * 60 * 1000)
 
-    return update < outdated
+    return sensor.last_update < outdated
+  },
+  getSensor: (state) => (id) => {
+    return state.list.find(item => item.id === id)
   },
 }
 

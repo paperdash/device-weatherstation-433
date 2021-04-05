@@ -30,7 +30,12 @@ connection.onmessage = (message) => {
 
   store.commit('sensors/update', log)
   store.commit('sensors/addHistory', log)
-  store.commit('notification', log)
+
+  const sensor = store.getters['sensors/getSensor'](log.id)
+  if (sensor) {
+    const notify = (sensor.label || 'Unkown sensor') + ': ' + log.temperature + ' °C'
+    store.commit('notification', notify)
+  }
 }
 
 store.watch(
