@@ -51,7 +51,14 @@ void imageGenerate(GFXcanvas1 *_canvas)
 			num++;
 			_canvas->setCursor(20, 100 + (45 * num));
 			_canvas->setTextColor(GxEPD_BLACK);
-			_canvas->printf("% 5.1f C / %2d%%", list[i].temperature, list[i].humidity);
+			if (isSensorOffline(list[i]))
+			{
+				_canvas->print(" --.- C / --%");
+			}
+			else
+			{
+				_canvas->printf("% 5.1f C / %2d%%", list[i].temperature, list[i].humidity);
+			}
 
 			_canvas->fillRect(305, 75 + (45 * num), 345, 35, GxEPD_BLACK);
 			_canvas->setCursor(310, 100 + (45 * num));

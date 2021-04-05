@@ -207,6 +207,7 @@ void setupApiSensor()
 				root[index]["last_update"] = list[i].last_update;
 				root[index]["protocol"] = list[i].protocol;
 				root[index]["label"] = list[i].label;
+				root[index]["active"] = !isSensorOffline(list[i]);
 				index++;
 			}
 		}

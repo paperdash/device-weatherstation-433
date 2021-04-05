@@ -31,5 +31,6 @@ void saveSensors();
 
 void sensorSetMonitorMode(bool enable);
 bool isSensorMonitorMode();
+bool isSensorOffline(structSensorData sensor);
 
 #endif

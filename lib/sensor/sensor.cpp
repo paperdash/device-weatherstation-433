@@ -368,3 +368,12 @@ bool isSensorMonitorMode()
 {
 	return sensorMonitorMode;
 }
+
+bool isSensorOffline(structSensorData sensor)
+{
+	time_t now = time(0);
+	uint32_t thresholdSec = 10 * 60; // 10 min
+
+	double diffSec = difftime(now, sensor.last_update);
+	return diffSec > thresholdSec;
+}
