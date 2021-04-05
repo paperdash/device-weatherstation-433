@@ -1,4 +1,5 @@
 import apiDevice from 'api-device'
+import timezones from 'countries-and-timezones'
 
 const state = () => ({
   stats: {},
@@ -70,6 +71,34 @@ const getters = {
     }
 
     return getDescendantProp(state.settings, key) !== undefined
+  },
+  getAvailableLanguages () {
+    const list = []
+
+    list.push({
+      code: 'EN',
+      name: 'English',
+      native: 'English',
+    })
+
+    return list
+  },
+
+  getAvailableCountries () {
+    return Object.values(timezones.getAllCountries())
+  },
+
+  getAvailableTimezones () {
+    return Object.values(timezones.getAllTimezones())
+  },
+  getAvailableTimezone: () => (countryCode) => {
+    return timezones.getCountry(countryCode)
+  },
+  getTimezoneByCountry: () => (country) => {
+    return timezones.getTimezonesForCountry(country)
+  },
+  getTimezone: () => (timezone) => {
+    return timezones.getTimezone(timezone)
   },
   getFSUsage: (state) => {
     return Math.round(

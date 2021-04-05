@@ -169,6 +169,11 @@
           to: '/',
         },
         {
+          label: 'Device',
+          icon: '$device',
+          to: '/device',
+        },
+        {
           label: 'Display',
           icon: '$present_to_all',
           to: '/display',
