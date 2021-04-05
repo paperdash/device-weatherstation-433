@@ -22,7 +22,8 @@ const store = new Vuex.Store({
 })
 
 // sensor push data
-const connection = new WebSocket('ws://' + window.location.host + '/ws')
+const protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://'
+const connection = new WebSocket(protocol + window.location.host + '/ws')
 connection.onmessage = (message) => {
   const log = JSON.parse(message.data)
   log.last_update = new Date()
