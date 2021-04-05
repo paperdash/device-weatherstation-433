@@ -7,7 +7,6 @@
       <v-card
         color="grey lighten-4"
         flat
-        elevation="0"
         min-width="160"
         rounded="xl"
       >
